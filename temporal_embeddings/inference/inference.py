@@ -5,7 +5,7 @@ from transformers import AutoTokenizer
 
 from temporal_embeddings.model.gauss_model import GaussModel, GaussOutput
 from parameters import MODEL_NAME, INFERENCE_DEVICE, BATCH_SIZE, NUM_WORKERS, MAX_SEQ_LEN, INPUT_FILE_PATH, SPECIAL_TOKENS
-from temporal_embeddings.data.utils.similarity import asymmetrical_kl_sim
+from temporal_embeddings.data_utils.utils.similarity import asymmetrical_kl_sim
 
 class Inference:
     def __init__(self, sentences1: list[str], sentences2: list[str], scores: list[float]):
