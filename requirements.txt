@@ -52,7 +52,6 @@ stanza==1.8.2
 sympy==1.12
 textblob==0.18.0.post0
 thinc==8.2.3
-thinc_apple_ops==0.1.5
 threadpoolctl==3.4.0
 tokenizers==0.19.1
 toml==0.10.2
