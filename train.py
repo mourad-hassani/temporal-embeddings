@@ -1,16 +1,15 @@
-from temporal_embeddings.data_utils.utils.set_seed import set_seed
-from execution import Execution
+from temporal_embeddings.utils.set_seed import set_seed
+from temporal_embeddings.execution.execution import Execution
 import torch
 from tqdm import trange, tqdm
-from parameters import EPOCHS, DEVICE, DTYPE, NUM_EVAL_STEPS, OUTPUT_DIRECTORY_PATH
+from temporal_embeddings.parameters.parameters import EPOCHS, DEVICE, DTYPE, NUM_EVAL_STEPS, OUTPUT_DIRECTORY_PATH
 from transformers.tokenization_utils import BatchEncoding
 from temporal_embeddings.model.gauss_model import GaussOutput
-from temporal_embeddings.data_utils.utils.similarity import asymmetrical_kl_sim
-import torch.nn as nn
-from temporal_embeddings.data_utils.utils.save import save_json
-from temporal_embeddings.data_utils.utils.loss.cosent_loss import CoSentLoss
+from temporal_embeddings.utils.similarity import asymmetrical_kl_sim
+from temporal_embeddings.utils.save import save_json
+from temporal_embeddings.utils.loss.cosent_loss import CoSentLoss
 
-def main():
+def main() -> None:
     set_seed()
     
     execution = Execution()
@@ -27,6 +26,7 @@ def main():
     best_state_dict = execution.clone_state_dict()
 
     scaler = torch.cuda.amp.GradScaler()
+    
     current_step = 0
 
     for epoch in trange(EPOCHS, leave=False, dynamic_ncols=True, desc="Epoch"):
@@ -42,7 +42,6 @@ def main():
                 sent1_out: GaussOutput = execution.model.forward(**batch.sent1)
 
             sim_mat: torch.FloatTensor = asymmetrical_kl_sim(sent0_out.mu, sent0_out.std, sent1_out.mu, sent1_out.std)
-            sim_mat = sim_mat
 
             criterion = CoSentLoss()
             loss = criterion(sim_mat, batch.score)
