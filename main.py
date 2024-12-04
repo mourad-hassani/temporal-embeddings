@@ -1,3 +1,3 @@
-from temporal_embeddings.scripts.create_dataset import create_dataset
+from temporal_embeddings.data_utils.temporal_index.create_index import create_index
 
-create_dataset()
+create_index()

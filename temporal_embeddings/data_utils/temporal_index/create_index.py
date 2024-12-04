@@ -21,7 +21,7 @@ def create_index(num_rows : int = NUM_ROWS) -> None:
     """
     Creates the index where we store the temporal expressions and the IDs of sentences.
 
-    Paramters:
+    Parameters:
         num_rows (int): The number of rows to load from the fineweb database.
 
     Returns:
