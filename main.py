@@ -1,3 +1,0 @@
-from temporal_embeddings.data_utils.temporal_index.create_index import create_index
-
-create_index()

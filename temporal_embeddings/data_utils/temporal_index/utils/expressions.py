@@ -2,6 +2,8 @@ from typing import Dict, List
 import re
 from datetime import datetime
 
+import pandas as pd
+
 from temporal_embeddings.data_utils.utils.dates.is_date import is_date
 from temporal_embeddings.data_utils.utils.intervals.is_interval import is_interval
 from temporal_embeddings.data_utils.utils.offsets.is_offset import is_offset
@@ -12,10 +14,10 @@ from temporal_embeddings.data_utils.utils.dates.generate_random_date import gene
 from temporal_embeddings.data_utils.utils.dates.dates_settings import START_DATE, END_DATE
 from temporal_embeddings.data_utils.utils.mappings.expression_to_text import expression_to_text
 
-def add_expression(temporal_sentences : Dict, expression : str, sentence_id : int, value : str) -> Dict:
+def add_expression(temporal_sentences : pd.DataFrame, expression : str, sentence : str, value : str) -> pd.DataFrame:
     current_date : str = generate_random_date_full(START_DATE, END_DATE)
 
-    expression_object : Dict = {"sent": sentence_id, "expression": expression, "value": value, "current_date": current_date}
+    expression_object : Dict = {"sent": sentence, "expression": expression, "value": value, "current_date": current_date}
 
     expression_date_list : List = expression_to_date(value, current_date) if expression_to_date(value, current_date) else value
     
@@ -29,12 +31,14 @@ def add_expression(temporal_sentences : Dict, expression : str, sentence_id : in
     else:
         expression_date : str = expression_date_list
 
-    if expression_date in temporal_sentences:
-        temporal_sentences[expression_date].append(expression_object)
+    if expression_date in temporal_sentences.index:
+        temporal_sentences.at[expression_date, "sentences"].append(expression_object["sent"])
+        temporal_sentences.at[expression_date, "expressions"].append(expression_object["expression"])
+        temporal_sentences.at[expression_date, "values"].append(expression_object["value"])
+        temporal_sentences.at[expression_date, "current_dates"].append(expression_object["current_date"])
     
     else:
-        temporal_sentences[expression_date] = [expression_object]
-        temporal_sentences = dict(sorted(temporal_sentences.items()))
+        temporal_sentences.loc[expression_date] = [[expression_object["sent"]], [expression_object["expression"]], [expression_object["value"]], [expression_object["current_date"]]]
     
     return temporal_sentences
 
