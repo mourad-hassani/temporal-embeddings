@@ -42,19 +42,10 @@ def create_index(index : int, skip : int, num_rows : int) -> int:
     
     for i in range(index):
         items_to_skip += avg + (1 if i < remainder else 0)
-
-    print("*"*50)
-    print(f"skip={skip+items_to_skip}")
-    print(f"limit={(avg + (1 if index < remainder else 0))}")
-    print("*"*50)
     
     data_reader = ParquetReader("hf://datasets/HuggingFaceFW/fineweb/data", skip=(skip + items_to_skip), limit=(avg + (1 if index < remainder else 0)), doc_progress=True, file_progress=True)
 
     for document in tqdm(data_reader()):
-        print("Document")
-        print("="*50)
-        print(document.text)
-        print("="*50)
         for sent in split_into_sentences(document.text):
             contains_temporal_expression_bool, extracted_temporal_expressions = contains_temporal_expression(sent, client)
             
