@@ -14,13 +14,13 @@ from temporal_embeddings.utils.os.folder_management import clear_files
 
 OUTPUT_FOLDER_PATH : Path = Path("./data/fineweb/index")
 
-NUM_WORKERS : int = min(50, os.cpu_count())
+NUM_WORKERS : int = min(2, os.cpu_count())
 
 clients : List[CoreNLPClient] = [CoreNLPClient(endpoint="http://localhost:"+str(60000+i), annotators=['tokenize', 'ner'], be_quiet=True) for i in range(NUM_WORKERS)]
 
 clear_files(OUTPUT_FOLDER_PATH)
 
-def create_index(index : int, num_rows : int) -> int:
+def create_index(index : int, skip : int, num_rows : int) -> int:
     """
     Creates the index where we store the temporal expressions and the IDs of sentences.
 
@@ -35,11 +35,26 @@ def create_index(index : int, num_rows : int) -> int:
 
     output_dataframe : pd.DataFrame = pd.DataFrame(columns=["sentences", "expressions", "values", "current_dates"])
     
-    items_start : int = int(num_rows / NUM_WORKERS) * (index)
+    avg : int = num_rows // NUM_WORKERS
+    remainder : int = num_rows % NUM_WORKERS
+
+    items_to_skip : int = 0
     
-    data_reader = ParquetReader("hf://datasets/HuggingFaceFW/fineweb/data", skip=items_start, limit=int(num_rows / NUM_WORKERS), doc_progress=True, file_progress=True)
+    for i in range(index):
+        items_to_skip += avg + (1 if i < remainder else 0)
+
+    print("*"*50)
+    print(f"skip={skip+items_to_skip}")
+    print(f"limit={(avg + (1 if index < remainder else 0))}")
+    print("*"*50)
+    
+    data_reader = ParquetReader("hf://datasets/HuggingFaceFW/fineweb/data", skip=(skip + items_to_skip), limit=(avg + (1 if index < remainder else 0)), doc_progress=True, file_progress=True)
 
     for document in tqdm(data_reader()):
+        print("Document")
+        print("="*50)
+        print(document.text)
+        print("="*50)
         for sent in split_into_sentences(document.text):
             contains_temporal_expression_bool, extracted_temporal_expressions = contains_temporal_expression(sent, client)
             

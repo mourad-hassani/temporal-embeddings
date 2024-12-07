@@ -9,11 +9,12 @@ print(NUM_WORKERS)
 parser = argparse.ArgumentParser(description="Commnad line program to create the training dataset")
 
 parser.add_argument("-n", "--num_rows", type=int)
+parser.add_argument("-s", "--skip", type=int)
 
 args = parser.parse_args()
 
 with concurrent.futures.ThreadPoolExecutor(max_workers=NUM_WORKERS) as executor:
-    futures = [executor.submit(create_index, index, args.num_rows) for index in range(NUM_WORKERS)]
+    futures = [executor.submit(create_index, index, args.skip, args.num_rows) for index in range(NUM_WORKERS)]
 
     for future in concurrent.futures.as_completed(futures):
         print(f"Process {future.result()} completed")
