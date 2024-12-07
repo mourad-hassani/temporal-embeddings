@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import List
+import os
 
 from tqdm import tqdm
 from datatrove.pipeline.readers import ParquetReader
@@ -9,13 +10,17 @@ import pandas as pd
 from temporal_embeddings.data_utils.utils.stanza.temporal_expressions import contains_temporal_expression
 from temporal_embeddings.data_utils.utils.text.get_sentences import split_into_sentences
 from temporal_embeddings.data_utils.temporal_index.utils.expressions import accept_expression, add_expression
-from temporal_embeddings.utils.os.folder_management import clear_json_files
+from temporal_embeddings.utils.os.folder_management import clear_files
 
-OUTPUT_PATH : Path = Path("data/fineweb")
+OUTPUT_FOLDER_PATH : Path = Path("./data/fineweb/index")
 
-NUM_ROWS : int = 1000
+NUM_WORKERS : int = min(50, os.cpu_count())
 
-def create_index(num_rows : int = NUM_ROWS) -> None:
+clients : List[CoreNLPClient] = [CoreNLPClient(endpoint="http://localhost:"+str(60000+i), annotators=['tokenize', 'ner'], be_quiet=True) for i in range(NUM_WORKERS)]
+
+clear_files(OUTPUT_FOLDER_PATH)
+
+def create_index(index : int, num_rows : int) -> int:
     """
     Creates the index where we store the temporal expressions and the IDs of sentences.
 
@@ -26,14 +31,13 @@ def create_index(num_rows : int = NUM_ROWS) -> None:
         None: This function does not return any value.
     """
 
-    clear_json_files(OUTPUT_PATH / Path("sentences"))
-    clear_json_files(OUTPUT_PATH / Path("index"))
-
-    client = CoreNLPClient(annotators=['tokenize', 'ner'], be_quiet=True)
+    client : CoreNLPClient = clients[index % NUM_WORKERS]
 
     output_dataframe : pd.DataFrame = pd.DataFrame(columns=["sentences", "expressions", "values", "current_dates"])
-
-    data_reader = ParquetReader("hf://datasets/HuggingFaceFW/fineweb/data", limit=num_rows, doc_progress=True, file_progress=True)
+    
+    items_start : int = int(num_rows / NUM_WORKERS) * (index)
+    
+    data_reader = ParquetReader("hf://datasets/HuggingFaceFW/fineweb/data", skip=items_start, limit=int(num_rows / NUM_WORKERS), doc_progress=True, file_progress=True)
 
     for document in tqdm(data_reader()):
         for sent in split_into_sentences(document.text):
@@ -49,4 +53,6 @@ def create_index(num_rows : int = NUM_ROWS) -> None:
 
     output_dataframe = output_dataframe.sort_index()
     
-    output_dataframe.to_csv(OUTPUT_PATH / Path("index/index.csv"), index=True)
+    output_dataframe.to_csv(OUTPUT_FOLDER_PATH / Path(f"{index}.csv"), index=True)
+
+    return index

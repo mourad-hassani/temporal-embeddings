@@ -2,9 +2,9 @@ import os
 import glob
 from pathlib import Path
 
-def clear_json_files(folder : Path) -> None:
+def clear_files(folder : Path) -> None:
     """
-    Deletes all `.json` files within the specified folder.
+    Deletes all files within the specified folder.
 
     Parameters:
         folder (Path): The path to the folder containing the files to be cleared.
@@ -14,6 +14,11 @@ def clear_json_files(folder : Path) -> None:
     """
 
     files = glob.glob(str(folder / Path("*.json")))
+    
+    for f in files:
+        os.remove(f)
+
+    files = glob.glob(str(folder / Path("*.csv")))
     
     for f in files:
         os.remove(f)
