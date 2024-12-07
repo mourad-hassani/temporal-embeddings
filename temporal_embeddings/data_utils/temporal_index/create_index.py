@@ -14,7 +14,7 @@ from temporal_embeddings.utils.os.folder_management import clear_files
 
 OUTPUT_FOLDER_PATH : Path = Path("./data/fineweb/index")
 
-NUM_WORKERS : int = min(2, os.cpu_count())
+NUM_WORKERS : int = min(10, os.cpu_count())
 
 clients : List[CoreNLPClient] = [CoreNLPClient(endpoint="http://localhost:"+str(60000+i), annotators=['tokenize', 'ner'], be_quiet=True) for i in range(NUM_WORKERS)]
 
