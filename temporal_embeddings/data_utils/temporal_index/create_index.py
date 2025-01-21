@@ -4,7 +4,6 @@ import os
 
 from tqdm import tqdm
 from datatrove.pipeline.readers import ParquetReader
-import stanza
 from stanza.server import CoreNLPClient
 import pandas as pd
 
@@ -16,8 +15,6 @@ from temporal_embeddings.utils.os.folder_management import clear_files
 OUTPUT_FOLDER_PATH : Path = Path("./data/fineweb/index")
 
 NUM_WORKERS : int = min(10, os.cpu_count())
-
-stanza.install_corenlp()
 
 clients : List[CoreNLPClient] = [CoreNLPClient(endpoint="http://localhost:"+str(60000+i), annotators=['tokenize', 'ner'], be_quiet=True) for i in range(NUM_WORKERS)]
 
