@@ -32,4 +32,6 @@ def merge_csv_files(folder_path : Path) -> None:
     if not os.path.exists(folder_path / Path("dataset")):
         os.makedirs(folder_path / Path("dataset"))
 
+    merged_df.sort_index()
+
     merged_df.to_csv(folder_path / Path("dataset/dataset.csv"))
