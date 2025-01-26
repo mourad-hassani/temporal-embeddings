@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 import pandas as pd
-from parameters import INPUT_FILE_PATH
+from temporal_embeddings.parameters.parameters import INPUT_FILE_PATH
 
 def load_data(file_path: Path = INPUT_FILE_PATH, split: str = "train") -> list[list[str]]:
     first_sentences: list[str] = []

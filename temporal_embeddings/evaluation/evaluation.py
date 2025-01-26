@@ -5,7 +5,7 @@ from transformers import AutoTokenizer
 from transformers.tokenization_utils import PreTrainedTokenizer
 
 from temporal_embeddings.model.gauss_model import GaussOutput, GaussModel
-from parameters import DTYPE, DEVICE, MODEL_NAME, MAX_SEQ_LEN, INPUT_FILE_PATH, OUTPUT_DIRECTORY_PATH
+from temporal_embeddings.parameters.parameters import DTYPE, DEVICE, MODEL_NAME, MAX_SEQ_LEN, INPUT_FILE_PATH, OUTPUT_DIRECTORY_PATH
 from temporal_embeddings.data_utils.utils.gauss_data import GaussData
 from temporal_embeddings.data_utils.utils.similarity import asymmetrical_kl_sim
 from temporal_embeddings.data_utils.utils.save import save_json

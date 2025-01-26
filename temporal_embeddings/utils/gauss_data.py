@@ -4,7 +4,7 @@ import torch
 from torch.utils.data import DataLoader
 from transformers.tokenization_utils import BatchEncoding, PreTrainedTokenizer
 
-from parameters import INPUT_FILE_PATH, SHUFFLE, BATCH_SIZE, NUM_WORKERS, DROP_lAST, MAX_SEQ_LEN, SPECIAL_TOKENS
+from temporal_embeddings.parameters.parameters import INPUT_FILE_PATH, SHUFFLE, BATCH_SIZE, NUM_WORKERS, DROP_lAST, MAX_SEQ_LEN, SPECIAL_TOKENS
 
 class GaussData:
     def __init__(self, file_path: Path, tokenizer: PreTrainedTokenizer):
