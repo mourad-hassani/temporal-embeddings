@@ -7,7 +7,7 @@ from transformers.optimization import get_linear_schedule_with_warmup
 from scipy.stats import spearmanr
 
 from temporal_embeddings.model.gauss_model import GaussModel, GaussOutput
-from parameters import BATCH_SIZE, LR, NUM_WORKERS, MAX_SEQ_LEN, DTYPE, DEVICE, MODEL_NAME, INPUT_FILE_PATH, OUTPUT_DIRECTORY_PATH, WEIGHT_DECAY, EPOCHS, NUM_WARMUP_RATIO, SPECIAL_TOKENS
+from temporal_embeddings.parameters.parameters import BATCH_SIZE, LR, NUM_WORKERS, MAX_SEQ_LEN, DTYPE, DEVICE, MODEL_NAME, INPUT_FILE_PATH, OUTPUT_DIRECTORY_PATH, WEIGHT_DECAY, EPOCHS, NUM_WARMUP_RATIO, SPECIAL_TOKENS
 from temporal_embeddings.utils.gauss_data import GaussData
 from temporal_embeddings.utils.log_info import log_info
 from temporal_embeddings.utils.similarity import asymmetrical_kl_sim
