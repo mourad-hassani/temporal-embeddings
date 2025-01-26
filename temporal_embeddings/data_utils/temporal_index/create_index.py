@@ -50,7 +50,7 @@ def create_index(index : int, skip : int, num_rows : int) -> int:
             contains_temporal_expression_bool, extracted_temporal_expressions = contains_temporal_expression(sent, client)
             
             if contains_temporal_expression_bool:
-                found_expressions : List = [e for e in extracted_temporal_expressions if (str(e.value).strip() != "" and accept_expression(e.value if e.value else e.altValue) and e.type != "SET" and e.type != "TIME")]
+                found_expressions : List = [e for e in extracted_temporal_expressions]
 
                 for temporal_expression in found_expressions:
                     expression_value : str = temporal_expression.value if temporal_expression.value else temporal_expression.altValue

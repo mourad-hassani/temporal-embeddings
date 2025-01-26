@@ -19,7 +19,7 @@ def add_expression(temporal_sentences : pd.DataFrame, expression : str, sentence
 
     expression_object : Dict = {"sent": sentence, "expression": expression, "value": value, "current_date": current_date}
 
-    expression_date_list : List = expression_to_date(value, current_date) if expression_to_date(value, current_date) else value
+    expression_date_list : List = expression_to_date(value, current_date) if expression_to_date(value, current_date) else "None"
     
     if isinstance(expression_date_list, list):
         if len(expression_date_list) == 2:

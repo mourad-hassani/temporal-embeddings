@@ -35,3 +35,4 @@ def merge_csv_files(folder_path : Path) -> None:
     merged_df.sort_index()
 
     merged_df.to_csv(folder_path / Path("dataset/dataset.csv"))
+    merged_df.to_json(folder_path / Path("dataset/dataset.json"), orient="index", force_ascii=False, indent=4)
