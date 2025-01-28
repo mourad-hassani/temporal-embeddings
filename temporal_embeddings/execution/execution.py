@@ -81,9 +81,9 @@ class Execution():
 
         for batch in data_loader:
             with torch.cuda.amp.autocast(dtype=DTYPE):
-                print(batch.to("cuda:0").sent0)
-                print(batch.to("cuda:0").sent0)
-                sent0_out = self.model.forward(**batch.to("cuda:0").sent0)
+                sent0_input_ids = batch.sent0.input_ids.to("cuda:0")
+                sent0_attention_mask = batch.sent0.attention_mask.to("cuda:0")
+                sent0_out = self.model.forward(input_ids=sent0_input_ids, attention_mask=sent0_attention_mask)
                 sent1_out = self.model.forward(**batch.to("cuda:0").sent1)
                 scores = torch.cat([scores.to(DEVICE), (batch.to(DEVICE).score)], dim=0)
 
