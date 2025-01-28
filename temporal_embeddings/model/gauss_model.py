@@ -26,9 +26,6 @@ class GaussModel(nn.Module):
         self.activation = nn.Tanh()
 
     def forward(self, input_ids, attention_mask, **_) -> GaussOutput:
-        print(input_ids.device)
-        print(attention_mask.device)
-
         outputs: BaseModelOutput = self.backbone(input_ids=input_ids, attention_mask=attention_mask)
 
         # emb = self.mean_pooling(outputs, attention_mask)
