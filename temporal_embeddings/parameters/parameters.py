@@ -5,7 +5,7 @@ MODEL_NAME: str = "distilbert/distilbert-base-uncased"
 
 BATCH_SIZE: int = 64
 SHUFFLE: bool = False
-NUM_WORKERS: int = 4
+NUM_WORKERS: int = 2
 DROP_lAST: bool = True
 LR: float = 3e-5
 WEIGHT_DECAY: float = 2e-4
