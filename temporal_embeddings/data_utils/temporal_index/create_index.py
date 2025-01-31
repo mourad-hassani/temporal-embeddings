@@ -9,7 +9,7 @@ import pandas as pd
 
 from temporal_embeddings.data_utils.utils.stanza.temporal_expressions import contains_temporal_expression
 from temporal_embeddings.data_utils.utils.text.get_sentences import split_into_sentences
-from temporal_embeddings.data_utils.temporal_index.utils.expressions import accept_expression, add_expression
+from temporal_embeddings.data_utils.temporal_index.utils.expressions import add_expression
 from temporal_embeddings.utils.os.folder_management import clear_files
 
 OUTPUT_FOLDER_PATH : Path = Path("./data/fineweb/index")
