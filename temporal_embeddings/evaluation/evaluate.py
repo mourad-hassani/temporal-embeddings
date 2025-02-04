@@ -47,7 +47,7 @@ def evaluate_model(model_name: str) -> None:
 
             output_similarities.append(similarities.index(max(similarities)))
 
-    similarities_file_path: Path = Path(f"data/results/{model_name}/{model_name}_similarities.json")
+    similarities_file_path: Path = Path(f"output/similarities/{model_name}/{model_name}_similarities.json")
     create_folders(similarities_file_path.parent)
     
     with similarities_file_path.open("w", encoding="utf-8") as g:
