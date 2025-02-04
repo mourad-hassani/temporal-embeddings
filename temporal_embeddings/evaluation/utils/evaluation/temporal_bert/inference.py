@@ -4,9 +4,9 @@ from transformers.tokenization_utils import BatchEncoding, PreTrainedTokenizer
 from transformers import AutoTokenizer
 from typing import List, Dict
 
-from utils.evaluation.temporal_bert.gauss_model import GaussModel, GaussOutput
-from utils.evaluation.temporal_bert.parameters import MODEL_NAME, INFERENCE_DEVICE, BATCH_SIZE, NUM_WORKERS, MAX_SEQ_LEN, SPECIAL_TOKENS
-from utils.evaluation.temporal_bert.similarity import asymmetrical_kl_sim
+from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.gauss_model import GaussModel, GaussOutput
+from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters import MODEL_NAME, INFERENCE_DEVICE, BATCH_SIZE, NUM_WORKERS, MAX_SEQ_LEN, SPECIAL_TOKENS
+from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.similarity import asymmetrical_kl_sim
 
 class Inference:
     def __init__(self):
