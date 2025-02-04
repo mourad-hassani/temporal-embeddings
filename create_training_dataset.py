@@ -12,7 +12,6 @@ def create_training_dataset(input_csv, output_csv):
     new_rows = []
     
     for _, row in tqdm(df.iterrows()):
-
         sentences = eval(row["sentences"])
         values = eval(row["values"])
         current_dates = eval(row["current_dates"])
