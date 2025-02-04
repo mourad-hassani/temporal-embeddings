@@ -23,12 +23,12 @@ date_intervals = [
     "across the dates from {} to {}"
 ]
 
-def interval_to_text(annotation : str) -> str:
+def interval_to_text(annotation: str) -> str:
     first_date, second_date = annotation.split(",")
     
-    first_text : str = date_to_text(first_date)
-    second_text : str = date_to_text(second_date)
+    first_text: str = date_to_text(first_date)
+    second_text: str = date_to_text(second_date)
 
-    random_pattern : str = date_intervals[random.randint(0, len(date_intervals)-1)]
+    random_pattern: str = date_intervals[random.randint(0, len(date_intervals)-1)]
     
     return random_pattern.format(first_text, second_text)

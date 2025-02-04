@@ -1,5 +1,5 @@
 from temporal_embeddings.data_utils.utils.extract_integers import extract_integers
-from utils.compute_interval_distance import compute_interval_distance_date
+from temporal_embeddings.data_utils.utils.compute_interval_distance import compute_interval_distance_date
 from datetime import datetime, timedelta
 from temporal_embeddings.synthetic_data.utils.dates.compute_similarity_dates import compute_similarity_dates
 

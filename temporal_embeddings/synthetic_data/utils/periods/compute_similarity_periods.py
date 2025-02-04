@@ -1,5 +1,5 @@
 from temporal_embeddings.data_utils.utils.extract_integers import extract_integers
-from utils.compute_interval_distance import compute_interval_distance
+from temporal_embeddings.data_utils.utils.compute_interval_distance import compute_interval_distance
 
 def compute_similarity_periods(first_period, first_period_type, second_period, second_period_type):
     if first_period_type != second_period_type:

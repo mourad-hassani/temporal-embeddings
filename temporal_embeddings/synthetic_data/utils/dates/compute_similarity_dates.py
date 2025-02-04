@@ -1,7 +1,7 @@
 from temporal_embeddings.synthetic_data.utils.dates.is_date import is_date
 from temporal_embeddings.synthetic_data.utils.dates.is_in import is_in
 from temporal_embeddings.synthetic_data.utils.dates.compute_distance_dates import compute_distance_dates_same_type, compute_distance_dates
-from utils.compute_interval_distance import compute_interval_distance_date
+from temporal_embeddings.data_utils.utils.compute_interval_distance import compute_interval_distance_date
 from temporal_embeddings.synthetic_data.utils.dates.dates_settings import START_DATE, END_DATE
 
 def compute_similarity_dates(first_date, second_date):
