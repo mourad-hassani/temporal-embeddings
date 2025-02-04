@@ -7,7 +7,7 @@ import numpy as np
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.inference import Inference
 
 SBERT_SIMILARITIES_FILE_PATH: Path = Path("results/temporal_bert/temporal_bert_similarities.json")
-GROUND_TRUTH_FILE_PATH: Path = Path("data/time_sensitive_qa/processed_human_annotated_test.json")
+GROUND_TRUTH_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
 
 def evaluate_temporal_bert() -> None:
     similarities_list: List[int] = []
