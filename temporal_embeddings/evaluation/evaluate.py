@@ -25,7 +25,7 @@ def evaluate_model(model_name: str) -> None:
     data: List[Dict] = []
     ground_truth: List[int] = []
 
-    with DATA_FILE_PATH.open("r", encoding="urf-8") as f:
+    with DATA_FILE_PATH.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
         for element in tqdm(data):
