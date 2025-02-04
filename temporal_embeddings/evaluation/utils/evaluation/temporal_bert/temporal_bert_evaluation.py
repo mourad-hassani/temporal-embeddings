@@ -14,7 +14,7 @@ def evaluate_temporal_bert() -> None:
     similarities_list: List[int] = []
 
     with GROUND_TRUTH_FILE_PATH.open("r", encoding="utf-8") as f:
-        data = json.load(f)[:5]
+        data = json.load(f)
 
         inference: Inference = Inference()
 
