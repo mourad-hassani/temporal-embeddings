@@ -20,6 +20,6 @@ TEMPERATURE: float = 0.05
 NUM_EVAL_STEPS: int = 1000
 
 INPUT_FILE_PATH: str = Path("data/base_dataset/dataset.csv")
-OUTPUT_DIRECTORY_PATH: Path = Path("output")
+OUTPUT_DIRECTORY_PATH: Path = Path("output/metrics")
 
 SPECIAL_TOKENS: bool = False

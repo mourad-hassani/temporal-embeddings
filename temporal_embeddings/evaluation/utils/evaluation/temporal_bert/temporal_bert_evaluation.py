@@ -3,21 +3,22 @@ import json
 from typing import List
 
 import numpy as np
+from tqdm import tqdm
 
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.inference import Inference
 
-SBERT_SIMILARITIES_FILE_PATH: Path = Path("results/temporal_bert/temporal_bert_similarities.json")
+SBERT_SIMILARITIES_FILE_PATH: Path = Path("output/similarities/temporal_bert/temporal_bert_similarities.json")
 GROUND_TRUTH_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
 
 def evaluate_temporal_bert() -> None:
     similarities_list: List[int] = []
 
     with GROUND_TRUTH_FILE_PATH.open("r", encoding="utf-8") as f:
-        data = json.load(f)
+        data = json.load(f)[:5]
 
         inference: Inference = Inference()
 
-        for element in (data):
+        for element in tqdm(data):
             question: str = element["question"]
             question = f"[CLS] {question} [SEP] 09 august 2024 [SEP]"
 
