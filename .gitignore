@@ -1,6 +1,8 @@
 # data
 data/
 
+models/
+
 # Byte-compiled files
 __pycache__/
 *.py[cod]
@@ -19,3 +21,6 @@ __pycache__/
 *.swo
 *.orig
 *.DS_Store
+
+*.csv
+*.json

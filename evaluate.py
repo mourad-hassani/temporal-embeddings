@@ -1,10 +1,12 @@
-from temporal_embeddings.evaluation.evaluation import Evaluator
-from temporal_embeddings.utils.save import save_json
-from temporal_embeddings.parameters.parameters import OUTPUT_DIRECTORY_PATH
+from temporal_embeddings.evaluation.evaluate import evaluate_model
+import argparse
 
-evaluator: Evaluator = Evaluator()
+def main():
+    parser = argparse.ArgumentParser(description="Evaluate a model")
+    parser.add_argument("model_name", type=str, help="Name of the model to evaluate")
+    args = parser.parse_args()
 
-evaluator.evaluate()
+    evaluate_model(args.model_name)
 
-metrics: float = evaluator.evaluate()
-save_json(metrics, OUTPUT_DIRECTORY_PATH / "metrics.json")
+if __name__ == "__main__":
+    main()
