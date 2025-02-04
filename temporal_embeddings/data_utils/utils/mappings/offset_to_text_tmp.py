@@ -77,7 +77,7 @@ def offset_to_text(annotation):
         match = re.search(pattern, annotation)
         
         if match:
-            value : int = abs(int(match.group(1)))
+            value: int = abs(int(match.group(1)))
 
             return text.format(value)
 

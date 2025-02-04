@@ -1,6 +1,6 @@
 from typing import Tuple, List
 
-def contains_temporal_expression(text : str, client) -> Tuple[bool, List[str]]:
+def contains_temporal_expression(text: str, client) -> Tuple[bool, List[str]]:
     temporal_expression_bool = False
     temporal_expressions = []
     
