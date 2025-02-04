@@ -14,22 +14,22 @@ from temporal_embeddings.data_utils.utils.dates.generate_random_date import gene
 from temporal_embeddings.data_utils.utils.dates.dates_settings import START_DATE, END_DATE
 from temporal_embeddings.data_utils.utils.mappings.expression_to_text import expression_to_text
 
-def add_expression(temporal_sentences : pd.DataFrame, expression : str, sentence : str, value : str) -> pd.DataFrame:
-    current_date : str = generate_random_date_full(START_DATE, END_DATE)
+def add_expression(temporal_sentences: pd.DataFrame, expression: str, sentence: str, value: str) -> pd.DataFrame:
+    current_date: str = generate_random_date_full(START_DATE, END_DATE)
 
-    expression_object : Dict = {"sent": sentence, "expression": expression, "value": value, "current_date": current_date}
+    expression_object: Dict = {"sent": sentence, "expression": expression, "value": value, "current_date": current_date}
 
-    expression_date_list : List = expression_to_date(value, current_date) if expression_to_date(value, current_date) else "None"
+    expression_date_list: List = expression_to_date(value, current_date) if expression_to_date(value, current_date) else "None"
     
     if isinstance(expression_date_list, list):
         if len(expression_date_list) == 2:
-            expression_date : str = "->".join(expression_date_list)
+            expression_date: str = "->".join(expression_date_list)
 
         else:
-            expression_date : str = expression_date_list[0]
+            expression_date: str = expression_date_list[0]
 
     else:
-        expression_date : str = expression_date_list
+        expression_date: str = expression_date_list
 
     if expression_date in temporal_sentences.index:
         temporal_sentences.at[expression_date, "sentences"].append(expression_object["sent"])
@@ -42,7 +42,7 @@ def add_expression(temporal_sentences : pd.DataFrame, expression : str, sentence
     
     return temporal_sentences
 
-def accept_expression(expression : str) -> bool:
+def accept_expression(expression: str) -> bool:
     return (is_date(expression) or is_interval(expression) or is_offset(expression) or is_period(expression) or is_ref(expression)) and is_valid_date(expression) and expression_to_text(expression)
 
 def is_valid_date(date_str):

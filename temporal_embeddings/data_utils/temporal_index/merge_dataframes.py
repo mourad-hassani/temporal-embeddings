@@ -5,12 +5,12 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-def merge_csv_files(folder_path : Path) -> None:
+def merge_csv_files(folder_path: Path) -> None:
     merged_df = pd.DataFrame()
 
     for file_name in tqdm(os.listdir(folder_path)):
         if file_name.endswith(".csv"):
-            file_path : Path = folder_path / Path(file_name)
+            file_path: Path = folder_path / Path(file_name)
 
             df = pd.read_csv(file_path, index_col=0)
 
