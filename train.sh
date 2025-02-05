@@ -2,8 +2,6 @@
 #SBATCH --time=23:00:00
 #SBATCH --gres=gpu:1
 #SBATCH --nodelist=n102
-#SBATCH --mail-user=im_hassani@esi.dz
-#SBATCH --mail-type=ALL
 
 source ~/.bashrc
 #cd /mnt/beegfs/home/YOUR_LOGIN/(...)
