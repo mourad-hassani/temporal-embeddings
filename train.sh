@@ -4,10 +4,7 @@
 #SBATCH --nodelist=n102
 
 source ~/.bashrc
-#cd /mnt/beegfs/home/YOUR_LOGIN/(...)
-#conda activate YOUR_CONDA_ENV
-# python --version
-#python YOUR_PYTHON_FILE.py
-#conda deactivate
-#Then print Hello and the nodename
+cd /mnt/beegfs/home/hassani/training_an_em/project/temporal-embeddings
+conda activate train-env
 python3 train.py
+conda deactivate
