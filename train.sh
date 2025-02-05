@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH --time=23:00:00
 #SBATCH --gres=gpu:1
+#SBATCH --nodelist=n102
 
 source ~/.bashrc
 #cd /mnt/beegfs/home/YOUR_LOGIN/(...)
