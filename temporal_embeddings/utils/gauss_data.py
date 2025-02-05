@@ -11,7 +11,7 @@ class GaussData:
         self.tokenizer: PreTrainedTokenizer = tokenizer
 
         # self.dataset is of the form : [{"sent0": "...", "sent1": "...", "score": ...}]
-        self.dataset = pd.read_csv(str(file_path)).to_dict("records")
+        self.dataset = pd.read_csv(str(file_path), verbose=True).to_dict("records")
         self.dataset_length = len(self.dataset)
 
         self.train_dataset = self.dataset[:int(0.9 * self.dataset_length)]
