@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --time=23:59:00
-#SBATCH --gres=gpu:4
+#SBATCH --gres=gpu:2
 #SBATCH --nodelist=n102
 
 source ~/.bashrc
