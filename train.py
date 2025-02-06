@@ -48,6 +48,11 @@ def main() -> None:
 
             sim_mat: torch.FloatTensor = asymmetrical_kl_sim(sent0_out.mu, sent0_out.std, sent1_out.mu, sent1_out.std)
 
+            print("Device : ", DEVICE)
+            allocated_memory = torch.cuda.memory_allocated(DEVICE) / (1024 ** 3)
+            reserved_memory = torch.cuda.memory_reserved(DEVICE) / (1024 ** 3)
+            print(f'Epoch: {epoch}, Allocated Memory: {allocated_memory:.2f} GB, Reserved Memory: {reserved_memory:.2f} GB')
+            
             criterion = CoSentLoss()
             loss = criterion(sim_mat, batch.score)
 
