@@ -3,7 +3,7 @@ import torch
 
 MODEL_NAME: str = "distilbert/distilbert-base-uncased"
 
-BATCH_SIZE: int = 64
+BATCH_SIZE: int = 1024
 SHUFFLE: bool = False
 NUM_WORKERS: int = 4
 DROP_lAST: bool = True
