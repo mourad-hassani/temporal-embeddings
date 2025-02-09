@@ -37,7 +37,6 @@ def evaluate_model(model_name: str) -> None:
             ground_truth.append(element["answer"])
 
             question: str = element["question"]
-            question = f"[CLS] {question} [SEP] 09 august 2024 [SEP]"
             question_emb = model.encode(question, convert_to_tensor=True)
 
             paragraphs: List[str] = element["paragraphs"]
@@ -45,7 +44,6 @@ def evaluate_model(model_name: str) -> None:
             similarities: List[float] = []
             
             for paragraph in paragraphs:
-                paragraph = f"[CLS] {paragraph} [SEP] 09 august 2024 [SEP]"
                 paragraph_emb = model.encode(paragraph, convert_to_tensor=True)
 
                 similarities.append(util.cos_sim(question_emb, paragraph_emb)[0])
