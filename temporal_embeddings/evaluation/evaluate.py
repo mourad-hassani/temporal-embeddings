@@ -9,12 +9,17 @@ import numpy as np
 from temporal_embeddings.utils.os.folder_management import create_folders
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters import MAX_SEQ_LEN
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.temporal_bert_evaluation import evaluate_temporal_bert
+from temporal_embeddings.evaluation.utils.evaluation.mistral.mistral_evaluation import evaluate_mistral
 
 DATA_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
 
 def evaluate_model(model_name: str) -> None:
     if model_name == "temporal_bert":
         evaluate_temporal_bert()
+        return
+    
+    if model_name == "mistral":
+        evaluate_mistral()
         return
 
     model: SentenceTransformer = SentenceTransformer(model_name)
