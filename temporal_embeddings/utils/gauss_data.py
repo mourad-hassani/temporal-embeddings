@@ -14,6 +14,8 @@ class GaussData:
         self.dataset = pd.read_csv(str(file_path), verbose=True).to_dict("records")
         self.dataset_length = len(self.dataset)
 
+        print("Dataset length:", self.dataset_length)
+
         self.train_dataset = self.dataset[:int(0.9 * self.dataset_length)]
         self.val_dataset = self.dataset[int(0.9 * self.dataset_length):int(0.95 * self.dataset_length)]
         self.test_dataset = self.dataset[int(0.95 * self.dataset_length):]
