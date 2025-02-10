@@ -15,8 +15,10 @@ from temporal_embeddings.utils.loss.cosent_loss import CoSentLoss
 def main(data_fraction: float) -> None:
     set_seed()
     
+    print("Load the execution object")
     execution = Execution(data_fraction=data_fraction)
 
+    print("Compute the first dev score")
     best_dev_score = execution.evaluator()
     best_epoch, best_step = 0, 0
     val_metrics = {
