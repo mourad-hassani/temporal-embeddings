@@ -11,10 +11,7 @@ from temporal_embeddings.utils.positional_encoding import positional_encoding
 
 class Inference:
     def __init__(self):
-        gauss_model: GaussModel = GaussModel(MODEL_NAME, True).eval()
-        gauss_model = torch.nn.DataParallel(gauss_model).to(INFERENCE_DEVICE)
-        
-        self.model: GaussModel = gauss_model
+        self.model: GaussModel = GaussModel(MODEL_NAME, True).eval().to(INFERENCE_DEVICE)
         self.model.load_state_dict(torch.load('models/temporal_bert/temporal_bert.pth', map_location=torch.device(INFERENCE_DEVICE)))
 
         self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, model_max_length = MAX_SEQ_LEN, use_fast = False)
