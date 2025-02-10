@@ -52,6 +52,6 @@ class Inference:
     def evaluate(self) -> dict:
         similarities: list[float] = []
         
-        similarities = [i.item() for i in list(self.sim_fn(self.sentences1, self.sentences2))]
+        similarities = [i.item() for i in list(self.sim_fn(self.sentences1, self.sentences1_dates, self.sentences2, self.sentences2_dates))]
         
         return {"sent1": self.sentences1, "sent2": self.sentences2, "similarity": similarities, "ground_truth": self.scores}
