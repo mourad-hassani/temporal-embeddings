@@ -13,14 +13,14 @@ from temporal_embeddings.utils.log_info import log_info
 from temporal_embeddings.utils.similarity import asymmetrical_kl_sim
 
 class Execution():
-    def __init__(self):
+    def __init__(self, data_fraction: float):
         gauss_model: GaussModel = GaussModel(MODEL_NAME, True).eval()
         gauss_model = torch.nn.DataParallel(gauss_model).to(DEVICE)
         
         self.model: GaussModel = gauss_model
         self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, model_max_length = MAX_SEQ_LEN, use_fast = False)
 
-        self.gauss_data: GaussData = GaussData(INPUT_FILE_PATH, self.tokenizer)
+        self.gauss_data: GaussData = GaussData(INPUT_FILE_PATH, self.tokenizer, data_fraction)
 
         self.optimizer, self.lr_scheduler = self.create_optimizer(model=self.model, train_steps_per_epoch=len(self.gauss_data.train_dataloader))
 
@@ -35,7 +35,9 @@ class Execution():
         return BatchEncoding(
             {
                 "sent0": self.tokenize([d["sent0"] for d in data_list]),
+                "sent0_date": [d["sent0_date"] for d in data_list],
                 "sent1": self.tokenize([d["sent1"] for d in data_list]),
+                "sent1_date": [d["sent1_date"] for d in data_list],
                 "score": torch.FloatTensor([float(d["score"]) for d in data_list]),
             }
         )

@@ -1,11 +1,14 @@
-from temporal_embeddings.utils.set_seed import set_seed
-from temporal_embeddings.execution.execution import Execution
+import argparse
+
 import torch
 from tqdm import trange, tqdm
-from temporal_embeddings.parameters.parameters import EPOCHS, DEVICE, DTYPE, NUM_EVAL_STEPS, OUTPUT_DIRECTORY_PATH
 from transformers.tokenization_utils import BatchEncoding
+
+from temporal_embeddings.parameters.parameters import EPOCHS, DEVICE, DTYPE, NUM_EVAL_STEPS, OUTPUT_DIRECTORY_PATH
 from temporal_embeddings.model.gauss_model import GaussOutput
 from temporal_embeddings.utils.similarity import asymmetrical_kl_sim
+from temporal_embeddings.utils.set_seed import set_seed
+from temporal_embeddings.execution.execution import Execution
 from temporal_embeddings.utils.save import save_json
 from temporal_embeddings.utils.loss.cosent_loss import CoSentLoss
 
@@ -40,11 +43,11 @@ def main() -> None:
             with torch.cuda.amp.autocast(dtype=DTYPE):
                 sent0_input_ids = batch.sent0.input_ids.to(DEVICE)
                 sent0_attention_mask = batch.sent0.attention_mask.to(DEVICE)
-                sent0_out: GaussOutput = execution.model.forward(input_ids=sent0_input_ids, attention_mask=sent0_attention_mask)
+                sent0_out: GaussOutput = execution.model.forward(input_ids=sent0_input_ids, attention_mask=sent0_attention_mask, date=batch.sent0_date.to(DEVICE))
 
                 sent1_input_ids = batch.sent1.input_ids.to(DEVICE)
                 sent1_attention_mask = batch.sent1.attention_mask.to(DEVICE)
-                sent1_out: GaussOutput = execution.model.forward(input_ids=sent1_input_ids, attention_mask=sent1_attention_mask)
+                sent1_out: GaussOutput = execution.model.forward(input_ids=sent1_input_ids, attention_mask=sent1_attention_mask, date=batch.sent1_date.to(DEVICE))
 
             sim_mat: torch.FloatTensor = asymmetrical_kl_sim(sent0_out.mu, sent0_out.std, sent1_out.mu, sent1_out.std)
             
@@ -99,4 +102,9 @@ def main() -> None:
     save_json(metrics, OUTPUT_DIRECTORY_PATH / "metrics.json")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Train the temporal embeddings model.")
+    parser.add_argument("--data_fraction", type=float, default=1.0, help="Fraction of data to use for training.")
+    args = parser.parse_args()
+
+    execution = Execution(data_fraction=args.data_fraction)
     main()
