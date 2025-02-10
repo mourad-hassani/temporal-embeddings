@@ -1,9 +1,9 @@
 from pathlib import Path
 import torch
 
-MODEL_NAME: str = "distilbert/distilbert-base-uncased"
+MODEL_NAME: str = "prajjwal1/bert-tiny"
 
-BATCH_SIZE: int = 1024
+BATCH_SIZE: int = 64
 SHUFFLE: bool = False
 NUM_WORKERS: int = 2
 DROP_lAST: bool = True
