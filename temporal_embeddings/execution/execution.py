@@ -85,7 +85,7 @@ class Execution():
         if split == "train":
             data_loader: DataLoader = self.gauss_data.train_dataloader
 
-        for batch in data_loader:
+        for batch in tqdm(data_loader, desc=f"Evaluating {split} split"):
             with torch.cuda.amp.autocast(dtype=DTYPE):
                 sent0_input_ids = batch.sent0.input_ids.to(DEVICE)
                 sent0_attention_mask = batch.sent0.attention_mask.to(DEVICE)
