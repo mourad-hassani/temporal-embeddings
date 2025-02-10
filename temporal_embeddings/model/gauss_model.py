@@ -34,8 +34,7 @@ class GaussModel(nn.Module):
 
         # emb = self.mean_pooling(outputs, attention_mask)
         emb = outputs.last_hidden_state[:, 0]
-        pos_encoding = getPositionEncoding(dates, POSITIONAL_ENCODING_DIM).to(emb.device)
-        emb = torch.cat((emb, pos_encoding), dim=-1)
+        emb = torch.cat((emb, dates), dim=-1)
 
         mu = self.w_mu(emb)
         mu = self.activation(mu)

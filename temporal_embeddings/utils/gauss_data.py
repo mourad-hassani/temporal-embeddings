@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from transformers.tokenization_utils import BatchEncoding, PreTrainedTokenizer
 
 from temporal_embeddings.parameters.parameters import SHUFFLE, BATCH_SIZE, NUM_WORKERS, DROP_lAST, MAX_SEQ_LEN, SPECIAL_TOKENS
-from temporal_embeddings.utils.positional_encoding import getPositionEncoding
+from temporal_embeddings.utils.positional_encoding import positional_encoding
 
 class GaussData:
     def __init__(self, file_path: Path, tokenizer: PreTrainedTokenizer, data_fraction: float = 1.0) -> None:
@@ -39,9 +39,9 @@ class GaussData:
         return BatchEncoding(
             {
                 "sent0": self.tokenize([d["sent0"] for d in data_list]),
-                "sent0_date": getPositionEncoding([d["sent0_date"] for d in data_list]),
+                "sent0_date": positional_encoding([d["sent0_date"] for d in data_list]),
                 "sent1": self.tokenize([d["sent1"] for d in data_list]),
-                "sent1_date": getPositionEncoding([d["sent1_date"] for d in data_list]),
+                "sent1_date": positional_encoding([d["sent1_date"] for d in data_list]),
                 "score": torch.FloatTensor([float(d["score"]) for d in data_list]),
             }
         )

@@ -11,7 +11,7 @@ from temporal_embeddings.parameters.parameters import BATCH_SIZE, LR, NUM_WORKER
 from temporal_embeddings.utils.gauss_data import GaussData
 from temporal_embeddings.utils.log_info import log_info
 from temporal_embeddings.utils.similarity import asymmetrical_kl_sim
-from temporal_embeddings.utils.positional_encoding import getPositionEncoding
+from temporal_embeddings.utils.positional_encoding import positional_encoding
 
 class Execution():
     def __init__(self, data_fraction: float):
@@ -36,9 +36,9 @@ class Execution():
         return BatchEncoding(
             {
                 "sent0": self.tokenize([d["sent0"] for d in data_list]),
-                "sent0_date": getPositionEncoding([d["sent0_date"] for d in data_list]),
+                "sent0_date": positional_encoding([d["sent0_date"] for d in data_list]),
                 "sent1": self.tokenize([d["sent1"] for d in data_list]),
-                "sent1_date": getPositionEncoding([d["sent1_date"] for d in data_list]),
+                "sent1_date": positional_encoding([d["sent1_date"] for d in data_list]),
                 "score": torch.FloatTensor([float(d["score"]) for d in data_list]),
             }
         )

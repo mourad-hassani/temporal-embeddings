@@ -2,7 +2,9 @@ from datetime import datetime
 
 import torch
 
-def getPositionEncoding(dates, dim, n=10000) -> torch.Tensor:
+from temporal_embeddings.parameters.parameters import POSITIONAL_ENCODING_DIM
+
+def positional_encoding(dates, dim=POSITIONAL_ENCODING_DIM, n=10000) -> torch.Tensor:
     """
     Generates a positional encoding vector for a given dimension.
     Args:
