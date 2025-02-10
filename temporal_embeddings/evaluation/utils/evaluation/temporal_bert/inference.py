@@ -41,7 +41,7 @@ class Inference:
         output: GaussOutput = None
 
         for batch in self.data_loader(sentences):
-            output = self.model.forward(**batch.to(INFERENCE_DEVICE), dates=positional_encoding(dates).to(INFERENCE_DEVICE))
+            output = self.model.forward(**batch.to(INFERENCE_DEVICE), dates=positional_encoding(dates[:BATCH_SIZE]).to(INFERENCE_DEVICE))
             break
 
         return output
