@@ -29,12 +29,12 @@ class GaussModel(nn.Module):
         self.w_var = nn.Linear(self.hidden_size + POSITIONAL_ENCODING_DIM, self.hidden_size)
         self.activation = nn.Tanh()
 
-    def forward(self, input_ids, attention_mask, date, **_) -> GaussOutput:
+    def forward(self, input_ids, attention_mask, dates, **_) -> GaussOutput:
         outputs: BaseModelOutput = self.backbone(input_ids=input_ids, attention_mask=attention_mask)
 
         # emb = self.mean_pooling(outputs, attention_mask)
         emb = outputs.last_hidden_state[:, 0]
-        pos_encoding = getPositionEncoding(date, POSITIONAL_ENCODING_DIM).to(emb.device)
+        pos_encoding = getPositionEncoding(dates, POSITIONAL_ENCODING_DIM).to(emb.device)
         emb = torch.cat((emb, pos_encoding), dim=-1)
 
         mu = self.w_mu(emb)
@@ -50,7 +50,7 @@ class GaussModel(nn.Module):
         input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
         return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
     
-def getPositionEncoding(date, dim, n=10000) -> torch.Tensor:
+def getPositionEncoding(dates, dim, n=10000) -> torch.Tensor:
     """
     Generates a positional encoding vector for a given dimension.
     Args:
@@ -60,16 +60,18 @@ def getPositionEncoding(date, dim, n=10000) -> torch.Tensor:
     Returns:
         torch.Tensor: A tensor of shape (seq_len, d) containing the positional encoding.
     """
-    P = torch.zeros(dim)
+    P = torch.zeros(len(dates), dim)
 
     start_date: datetime = datetime(1889, 1, 1)
-    date: datetime = datetime.strptime(date, "%d %B %Y")
-    k = (date - start_date).days
     
-    for i in torch.arange(int(dim/2)):
-        denominator = torch.pow(n, 2*i/dim)
+    for j in range(len(dates)):
+        date: datetime = datetime.strptime(dates[j], "%d %B %Y")
+        k = (date - start_date).days
         
-        P[2*i] = torch.sin(k/denominator)
-        P[2*i+1] = torch.cos(k/denominator)
+        for i in torch.arange(int(dim/2)):
+            denominator = torch.pow(n, 2*i/dim)
+            
+            P[j, 2*i] = torch.sin(k/denominator)
+            P[j, 2*i+1] = torch.cos(k/denominator)
     
     return P
