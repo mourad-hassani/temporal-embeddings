@@ -21,8 +21,9 @@ class Inference:
 
         self.cached_embeddings: Dict = {}
 
-    def set_sentences(self, sentences1: List[str], sentences2: List[str], scores: list[float]):
+    def set_sentences(self, sentences1: List[str], sentences1_dates: List[str], sentences2: List[str], sentences2_dates: List[str], scores: list[float]):
         self.sentences1, self.sentences2, self.scores = sentences1, sentences2, scores
+        self.sentences1_dates, self.sentences2_dates = sentences1_dates, sentences2_dates
 
     def tokenize(self, batch: list[str]) -> BatchEncoding:
         return self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt", max_length=MAX_SEQ_LEN, add_special_tokens=SPECIAL_TOKENS)
