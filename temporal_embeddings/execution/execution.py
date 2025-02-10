@@ -15,10 +15,7 @@ from temporal_embeddings.utils.positional_encoding import positional_encoding
 
 class Execution():
     def __init__(self, data_fraction: float):
-        gauss_model: GaussModel = GaussModel(MODEL_NAME, True).eval()
-        gauss_model = torch.nn.DataParallel(gauss_model).to(DEVICE)
-        
-        self.model: GaussModel = gauss_model
+        self.model: GaussModel = GaussModel(MODEL_NAME, True).eval().to(DEVICE)
         self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, model_max_length = MAX_SEQ_LEN, use_fast = False)
 
         self.gauss_data: GaussData = GaussData(INPUT_FILE_PATH, self.tokenizer, data_fraction)
