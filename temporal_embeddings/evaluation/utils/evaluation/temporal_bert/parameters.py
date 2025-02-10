@@ -4,7 +4,7 @@ import torch
 MODEL_NAME: str = "prajjwal1/bert-tiny"
 
 BATCH_SIZE: int = 64
-SHUFFLE: bool = False
+SHUFFLE: bool = True
 NUM_WORKERS: int = 1
 DROP_lAST: bool = True
 LR: float = 3e-5
