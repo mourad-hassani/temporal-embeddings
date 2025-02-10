@@ -4,9 +4,10 @@ from transformers.tokenization_utils import BatchEncoding, PreTrainedTokenizer
 from transformers import AutoTokenizer
 from typing import List, Dict
 
-from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.gauss_model import GaussModel, GaussOutput
+from temporal_embeddings.model.gauss_model import GaussModel, GaussOutput
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters import MODEL_NAME, INFERENCE_DEVICE, BATCH_SIZE, NUM_WORKERS, MAX_SEQ_LEN, SPECIAL_TOKENS
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.similarity import asymmetrical_kl_sim
+from temporal_embeddings.utils.positional_encoding import positional_encoding
 
 class Inference:
     def __init__(self):
@@ -29,20 +30,20 @@ class Inference:
     def data_loader(self, sentences: list[str]):
         return DataLoader(sentences, collate_fn=self.tokenize, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS, pin_memory=True, drop_last=False)
 
-    def sim_fn(self, sent1: list[str], sent2: list[str]) -> float:
-        sent1: GaussOutput = self.encode_fn(sent1)
-        sent2: GaussOutput = self.encode_fn(sent2)
+    def sim_fn(self, sent1: list[str], sent1_dates: list[str], sent2: list[str], sent2_dates: list[str]) -> float:
+        sent1: GaussOutput = self.encode_fn(sent1, sent1_dates)
+        sent2: GaussOutput = self.encode_fn(sent2, sent2_dates)
 
         return asymmetrical_kl_sim(sent1.mu, sent1.std, sent2.mu, sent2.std)
 
     @torch.inference_mode()
-    def encode_fn(self, sentences: list[str], **_) -> GaussOutput:
+    def encode_fn(self, sentences: list[str], dates: list[str], **_) -> GaussOutput:
         self.model.eval()
 
         output: GaussOutput = None
 
         for batch in self.data_loader(sentences):
-            output = self.model.forward(**batch.to(INFERENCE_DEVICE))
+            output = self.model.forward(**batch.to(INFERENCE_DEVICE), dates=positional_encoding(dates).to(INFERENCE_DEVICE))
             break
 
         return output
