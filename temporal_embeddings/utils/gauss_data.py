@@ -15,6 +15,7 @@ class GaussData:
         self.dataset_length = len(self.dataset)
 
         self.dataset = self.dataset[:int(data_fraction * self.dataset_length)]
+        self.dataset_length = len(self.dataset)
 
         print("Dataset length:", self.dataset_length)
 
