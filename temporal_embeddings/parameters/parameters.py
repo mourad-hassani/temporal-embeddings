@@ -23,4 +23,4 @@ POSITIONAL_ENCODING_DIM: int = 512
 INPUT_FILE_PATH: str = Path("data/dataset/dataset.csv")
 OUTPUT_DIRECTORY_PATH: Path = Path("output/metrics")
 
-SPECIAL_TOKENS: bool = False
+SPECIAL_TOKENS: bool = True

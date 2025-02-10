@@ -11,6 +11,7 @@ from temporal_embeddings.parameters.parameters import BATCH_SIZE, LR, NUM_WORKER
 from temporal_embeddings.utils.gauss_data import GaussData
 from temporal_embeddings.utils.log_info import log_info
 from temporal_embeddings.utils.similarity import asymmetrical_kl_sim
+from temporal_embeddings.utils.positional_encoding import getPositionEncoding
 
 class Execution():
     def __init__(self, data_fraction: float):
@@ -35,9 +36,9 @@ class Execution():
         return BatchEncoding(
             {
                 "sent0": self.tokenize([d["sent0"] for d in data_list]),
-                "sent0_date": [d["sent0_date"] for d in data_list],
+                "sent0_date": getPositionEncoding([d["sent0_date"] for d in data_list]),
                 "sent1": self.tokenize([d["sent1"] for d in data_list]),
-                "sent1_date": [d["sent1_date"] for d in data_list],
+                "sent1_date": getPositionEncoding([d["sent1_date"] for d in data_list]),
                 "score": torch.FloatTensor([float(d["score"]) for d in data_list]),
             }
         )
@@ -88,11 +89,11 @@ class Execution():
             with torch.cuda.amp.autocast(dtype=DTYPE):
                 sent0_input_ids = batch.sent0.input_ids.to(DEVICE)
                 sent0_attention_mask = batch.sent0.attention_mask.to(DEVICE)
-                sent0_out = self.model.forward(input_ids=sent0_input_ids, attention_mask=sent0_attention_mask, dates=batch.sent0_date)
+                sent0_out = self.model.forward(input_ids=sent0_input_ids, attention_mask=sent0_attention_mask, dates=batch.sent0_date.to(DEVICE))
                 
                 sent1_input_ids = batch.sent1.input_ids.to(DEVICE)
                 sent1_attention_mask = batch.sent1.attention_mask.to(DEVICE)
-                sent1_out = self.model.forward(input_ids=sent1_input_ids, attention_mask=sent1_attention_mask, dates=batch.sent1_date)
+                sent1_out = self.model.forward(input_ids=sent1_input_ids, attention_mask=sent1_attention_mask, dates=batch.sent1_date.to(DEVICE))
                 
                 scores = torch.cat([scores.to(DEVICE), (batch.to(DEVICE).score)], dim=0)
 

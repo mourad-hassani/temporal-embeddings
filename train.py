@@ -43,11 +43,11 @@ def main(data_fraction: float) -> None:
             with torch.cuda.amp.autocast(dtype=DTYPE):
                 sent0_input_ids = batch.sent0.input_ids.to(DEVICE)
                 sent0_attention_mask = batch.sent0.attention_mask.to(DEVICE)
-                sent0_out: GaussOutput = execution.model.forward(input_ids=sent0_input_ids, attention_mask=sent0_attention_mask, dates=batch.sent0_date)
+                sent0_out: GaussOutput = execution.model.forward(input_ids=sent0_input_ids, attention_mask=sent0_attention_mask, dates=batch.sent0_date.to(DEVICE))
 
                 sent1_input_ids = batch.sent1.input_ids.to(DEVICE)
                 sent1_attention_mask = batch.sent1.attention_mask.to(DEVICE)
-                sent1_out: GaussOutput = execution.model.forward(input_ids=sent1_input_ids, attention_mask=sent1_attention_mask, dates=batch.sent1_date)
+                sent1_out: GaussOutput = execution.model.forward(input_ids=sent1_input_ids, attention_mask=sent1_attention_mask, dates=batch.sent1_date.to(DEVICE))
 
             sim_mat: torch.FloatTensor = asymmetrical_kl_sim(sent0_out.mu, sent0_out.std, sent1_out.mu, sent1_out.std)
             
