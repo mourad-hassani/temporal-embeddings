@@ -12,10 +12,10 @@ from temporal_embeddings.execution.execution import Execution
 from temporal_embeddings.utils.save import save_json
 from temporal_embeddings.utils.loss.cosent_loss import CoSentLoss
 
-def main() -> None:
+def main(data_fraction: float) -> None:
     set_seed()
     
-    execution = Execution()
+    execution = Execution(data_fraction=data_fraction)
 
     best_dev_score = execution.evaluator()
     best_epoch, best_step = 0, 0
@@ -106,5 +106,4 @@ if __name__ == "__main__":
     parser.add_argument("--data_fraction", type=float, default=1.0, help="Fraction of data to use for training.")
     args = parser.parse_args()
 
-    execution = Execution(data_fraction=args.data_fraction)
-    main()
+    main(args.data_fraction)
