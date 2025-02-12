@@ -93,6 +93,7 @@ def evaluate_model(model_name: str) -> None:
             for paragraph in paragraphs:
                 paragraph_emb = model.encode(paragraph, convert_to_tensor=True)
 
+                print(util.cos_sim(question_emb, paragraph_emb)[0])
                 similarities.append(util.cos_sim(question_emb, paragraph_emb)[0].tolist())
 
             output_similarities.append(similarities)
