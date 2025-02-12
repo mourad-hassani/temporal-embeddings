@@ -15,8 +15,8 @@ SIMILARITIES_FILE_PATH: Path = Path("output/similarities/temporal_bert_full/simi
 GROUND_TRUTH_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
 
 def evaluate_temporal_bert_full() -> None:
-    evaluate_temporal_bert()
     evaluate_model("all-mpnet-base-v2")
+    evaluate_temporal_bert()
 
     with SBERT_SIMILARITIES_FILE_PATH.open("r", encoding="utf-8") as f1, SIMILARITIES_FILE_PATH.open("r", encoding="utf-8") as f2:
         list1 = json.load(f1)
@@ -93,7 +93,7 @@ def evaluate_model(model_name: str) -> None:
             for paragraph in paragraphs:
                 paragraph_emb = model.encode(paragraph, convert_to_tensor=True)
 
-                similarities.append(util.cos_sim(question_emb, paragraph_emb)[0])
+                similarities.append(util.cos_sim(question_emb, paragraph_emb)[0].tolist())
 
             output_similarities.append(similarities)
 
