@@ -22,7 +22,7 @@ def evaluate_temporal_bert_full() -> None:
         list1 = json.load(f1)
         list2 = json.load(f2)
 
-    merged_list = [[((x / 20.0) + y) / 2 for x, y in zip(sublist1, sublist2)] for sublist1, sublist2 in zip(list1, list2)]
+    merged_list = [[(x + y) / 2 for x, y in zip(sublist1, sublist2)] for sublist1, sublist2 in zip(list1, list2)]
 
     similarities_list: List[int] = [sublist.index(max(sublist)) for sublist in merged_list]
 
