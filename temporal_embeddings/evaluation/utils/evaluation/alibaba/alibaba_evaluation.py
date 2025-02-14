@@ -40,7 +40,7 @@ def evaluate_alibaba() -> None:
 
                 scores = (question_emb @ paragraph_emb.T) * 100
 
-                similarities.append(scores.tolist()[0])
+                similarities.append(scores.tolist())
 
             output_similarities.append(similarities.index(max(similarities)))
 
