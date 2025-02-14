@@ -11,6 +11,7 @@ from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters im
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.temporal_bert_evaluation import evaluate_temporal_bert
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert_full.temporal_bert_full import evaluate_temporal_bert_full
 from temporal_embeddings.evaluation.utils.evaluation.mistral.mistral_evaluation import evaluate_mistral
+from temporal_embeddings.evaluation.utils.evaluation.alibaba.alibaba_evaluation import evaluate_alibaba
 
 DATA_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
 
@@ -25,6 +26,10 @@ def evaluate_model(model_name: str) -> None:
     
     if model_name == "mistral":
         evaluate_mistral()
+        return
+    
+    if model_name == "alibaba":
+        evaluate_alibaba()
         return
 
     model: SentenceTransformer = SentenceTransformer(model_name)
