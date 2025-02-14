@@ -42,14 +42,14 @@ def evaluate_model(model_name: str) -> None:
             ground_truth.append(element["answer"])
 
             question: str = element["question"]
-            question_emb = model.encode(question, convert_to_tensor=True)
+            question_emb = model.encode(question, convert_to_tensor=True) if model_name != "BAAI/bge-large-en" else model.encode(question, convert_to_tensor=True, normalize_embeddings=True)
 
             paragraphs: List[str] = element["paragraphs"]
 
             similarities: List[float] = []
             
             for paragraph in paragraphs:
-                paragraph_emb = model.encode(paragraph, convert_to_tensor=True)
+                paragraph_emb = model.encode(paragraph, convert_to_tensor=True) if model_name != "BAAI/bge-large-en" else model.encode(paragraph, convert_to_tensor=True, normalize_embeddings=True)
 
                 similarities.append(util.cos_sim(question_emb, paragraph_emb)[0])
 
