@@ -23,7 +23,7 @@ def evaluate_alibaba() -> None:
     ground_truth: List[int] = []
 
     with DATA_FILE_PATH.open("r", encoding="utf-8") as f:
-        data = json.load(f)[:10]
+        data = json.load(f)
 
         for element in tqdm(data):
             ground_truth.append(element["answer"])
