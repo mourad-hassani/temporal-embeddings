@@ -26,7 +26,7 @@ def evaluate_salesforce() -> None:
     ground_truth: List[int] = []
 
     with DATA_FILE_PATH.open("r", encoding="utf-8") as f:
-        data = json.load(f)[:10]
+        data = json.load(f)[:1]
 
         for element in tqdm(data):
             ground_truth.append(element["answer"])
@@ -42,7 +42,7 @@ def evaluate_salesforce() -> None:
             for i, _ in enumerate(paragraphs):
                 scores = util.cos_sim(embeddings[0], embeddings[i+1])
 
-                print(scores.tolist())
+                print(scores.tolist()[0][0])
 
                 similarities.append(scores.tolist())
 
