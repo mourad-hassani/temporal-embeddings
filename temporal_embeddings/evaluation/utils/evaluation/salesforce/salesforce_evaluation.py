@@ -35,7 +35,14 @@ def evaluate_salesforce() -> None:
 
             paragraphs: List[str] = element["paragraphs"]
 
-            embeddings = model.encode([question] + paragraphs)
+            batch_size = 16  # Adjust the batch size as needed
+            embeddings = []
+            for i in range(0, len(paragraphs), batch_size):
+                batch = paragraphs[i:i + batch_size]
+                if i == 0:
+                    batch = [question] + batch
+                batch_embeddings = model.encode(batch)
+                embeddings.extend(batch_embeddings)  # Exclude the question embedding
 
             similarities: List[float] = []
             
