@@ -35,7 +35,7 @@ def evaluate_salesforce() -> None:
 
             paragraphs: List[str] = element["paragraphs"]
 
-            batch_size = 16  # Adjust the batch size as needed
+            batch_size = 8  # Adjust the batch size as needed
             embeddings = []
             for i in range(0, len(paragraphs), batch_size):
                 batch = paragraphs[i:i + batch_size]
