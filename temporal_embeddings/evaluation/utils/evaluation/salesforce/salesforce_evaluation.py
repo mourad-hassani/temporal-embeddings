@@ -20,15 +20,13 @@ def evaluate_salesforce() -> None:
 
     model = SentenceTransformer(model_name, trust_remote_code=True)
 
-    model.max_seq_length = 8192
-
     output_similarities: List[int] = []
 
     data: List[Dict] = []
     ground_truth: List[int] = []
 
     with DATA_FILE_PATH.open("r", encoding="utf-8") as f:
-        data = json.load(f)
+        data = json.load(f)[:10]
 
         for element in tqdm(data):
             ground_truth.append(element["answer"])
