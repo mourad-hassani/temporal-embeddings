@@ -17,18 +17,9 @@ from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.temporal_bert
 DATA_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
 
 def evaluate_mistral() -> None:
-    # api_key = os.getenv("MISTRAL_API_KEY")
     api_key: str = "OeZfwmPee7UPF0QCeOXd1Q6g1ea78JIz"
 
     client: Mistral = Mistral(api_key)
-
-    # embeddings_batch_response = client.embeddings.create(
-    #     model="mistral-embed",
-    #     inputs=["Embed this sentence.", "As well as this one."],
-    # )
-
-    # for emb in embeddings_batch_response.data:
-    #     print(emb.embedding)
 
     output_similarities: List[int] = []
 
@@ -49,19 +40,18 @@ def evaluate_mistral() -> None:
             questions.append(element["question"])
             paragraphs.extend(element["paragraphs"])
 
-        # questions_emb = client.embeddings.create(model="mistral-embed", inputs=questions).data
-        for i in range(0, len(questions), 100):
+        batch_size = 25
+        for i in range(0, len(questions), batch_size):
             print(i)
-            time.sleep(2)
-            batch = questions[i:i + 25]
+            time.sleep(1)
+            batch = questions[i:i + batch_size]
             batch_emb = client.embeddings.create(model="mistral-embed", inputs=batch).data
             questions_emb.extend(batch_emb)
-        # half = len(paragraphs) // 2
-        # paragraphs_emb = client.embeddings.create(model="mistral-embed", inputs=paragraphs).data
-        batch_size = 25
+
+        batch_size = 8
         for i in range(0, len(paragraphs), batch_size):
             print(i)
-            time.sleep(2)
+            time.sleep(1)
             batch = paragraphs[i:i + batch_size]
             batch_emb = client.embeddings.create(model="mistral-embed", inputs=batch).data
             paragraphs_emb.extend(batch_emb)
