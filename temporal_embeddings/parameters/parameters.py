@@ -1,7 +1,7 @@
 from pathlib import Path
 import torch
 
-MODEL_NAME: str = "prajjwal1/bert-tiny"
+MODEL_NAME: str = "sentence-transformers/all-mpnet-base-v2"
 
 BATCH_SIZE: int = 64
 SHUFFLE: bool = True
