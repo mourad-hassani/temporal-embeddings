@@ -3,6 +3,7 @@ import argparse
 import torch
 from tqdm import trange, tqdm
 from transformers.tokenization_utils import BatchEncoding
+from torch.utils.tensorboard import SummaryWriter
 
 from temporal_embeddings.parameters.parameters import EPOCHS, DEVICE, DTYPE, NUM_EVAL_STEPS, OUTPUT_DIRECTORY_PATH
 from temporal_embeddings.model.gauss_model import GaussOutput
@@ -14,6 +15,7 @@ from temporal_embeddings.utils.loss.cosent_loss import CoSentLoss
 
 def main(data_fraction: float) -> None:
     set_seed()
+    writer = SummaryWriter(log_dir="logs/runs/experiment")
     
     print("Load the execution object")
     execution = Execution(data_fraction=data_fraction)
@@ -84,6 +86,11 @@ def main(data_fraction: float) -> None:
                     "loss": sum(train_losses) / len(train_losses),
                     "dev_score": dev_score,
                 }
+
+                writer.add_scalar("Loss/train", sum(train_losses) / len(train_losses), current_step)
+                writer.add_scalar("Score/dev", dev_score, current_step)
+                writer.add_scalar("Learning_Rate", execution.optimizer.param_groups[0]["lr"], current_step)
+
                 execution.log(val_metrics)
                 train_losses = []
 
@@ -102,6 +109,8 @@ def main(data_fraction: float) -> None:
 
     metrics = execution.evaluator(split="train")
     save_json(metrics, OUTPUT_DIRECTORY_PATH / "metrics.json")
+
+    writer.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train the temporal embeddings model.")
