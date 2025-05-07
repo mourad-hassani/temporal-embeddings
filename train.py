@@ -89,8 +89,18 @@ def main(data_fraction: float) -> None:
                     "dev_score": dev_score,
                 }
 
+                print(f"Writing to TensorBoard at step {current_step}:")
+                for key, value in val_metrics.items():
+                    print(f"  Metrics/{key}: {value}")
+                    writer.add_scalar(f"Metrics/{key}", value, current_step)
+
+                print(f"  Loss/train: {sum(train_losses) / len(train_losses)}")
                 writer.add_scalar("Loss/train", sum(train_losses) / len(train_losses), current_step)
+
+                print(f"  Score/dev: {dev_score}")
                 writer.add_scalar("Score/dev", dev_score, current_step)
+
+                print(f"  Learning_Rate: {execution.optimizer.param_groups[0]['lr']}")
                 writer.add_scalar("Learning_Rate", execution.optimizer.param_groups[0]["lr"], current_step)
 
                 execution.log(val_metrics)
