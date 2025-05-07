@@ -12,10 +12,12 @@ from temporal_embeddings.utils.set_seed import set_seed
 from temporal_embeddings.execution.execution import Execution
 from temporal_embeddings.utils.save import save_json
 from temporal_embeddings.utils.loss.cosent_loss import CoSentLoss
+from datetime import datetime
 
 def main(data_fraction: float) -> None:
     set_seed()
-    writer = SummaryWriter(log_dir="logs/runs/experiment")
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    writer = SummaryWriter(log_dir=f"logs/runs/experiment_{current_time}")
     
     print("Load the execution object")
     execution = Execution(data_fraction=data_fraction)

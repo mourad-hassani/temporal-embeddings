@@ -63,4 +63,4 @@ urllib3==2.2.1
 wasabi==1.1.3
 weasel==0.3.4
 wheel==0.43.0
-tensorboard
+tensorboard==2.19.0
