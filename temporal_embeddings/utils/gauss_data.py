@@ -17,7 +17,7 @@ class GaussData:
             self.dataset["sent0"].str.split().str.len().lt(100) & 
             self.dataset["sent1"].str.split().str.len().lt(100)
         ]
-        self.dataset = self.datset.to_dict("records")
+        self.dataset = self.dataset.to_dict("records")
         
         self.dataset_length = len(self.dataset)
         print("Original dataset length:", self.dataset_length)
