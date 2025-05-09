@@ -148,14 +148,14 @@ def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weig
         "best-step": best_step,
         "best-dev-auc": best_dev_score,
     }
-    save_json(dev_metrics, output_directory_path / "dev-metrics.json")
+    save_json(dev_metrics, f"{output_directory_path}/dev-metrics.json")
 
     execution.model.load_state_dict(best_state_dict)
     torch.save(execution.model.state_dict(), "temporal_bert.pth")
     execution.model.eval().to(DEVICE)
 
     metrics = execution.evaluator(split="train")
-    save_json(metrics, output_directory_path / "metrics.json")
+    save_json(metrics, f"{output_directory_path}/metrics.json")
 
     writer.close()
 
