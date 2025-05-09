@@ -145,7 +145,7 @@ class Execution():
         return output
 
     def log(self, metrics: dict) -> None:
-        log_info(metrics, self.parameters["output_directory_path"] / "log.csv")
+        log_info(metrics, f"{self.parameters["output_directory_path"]}/log.csv")
         tqdm.write(
             f"epoch: {metrics['epoch']} \t"
             f"step: {metrics['step']} \t"
