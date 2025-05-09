@@ -17,7 +17,7 @@ INFERENCE_DEVICE: str = "cuda:0"
 DTYPE: torch.dtype = torch.float16
 SEED: int = 0
 TEMPERATURE: float = 0.05
-NUM_EVAL_STEPS: int = 500
+NUM_EVAL_STEPS: int = 1000
 POSITIONAL_ENCODING_DIM: int = 32
 
 INPUT_FILE_PATH: str = Path("data/dataset/dataset.csv")
