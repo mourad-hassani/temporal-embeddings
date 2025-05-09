@@ -13,6 +13,8 @@ GROUND_TRUTH_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed
 def evaluate_temporal_bert() -> None:
     similarities_list: List[int] = []
 
+    reference_date: str = "09 august 2024"
+
     with GROUND_TRUTH_FILE_PATH.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
@@ -20,13 +22,13 @@ def evaluate_temporal_bert() -> None:
 
         for element in tqdm(data):
             question: str = element["question"]
-            question = f"[CLS] {question} [SEP] 09 august 2024 [SEP]"
 
-            second_sentences: List[str] = [f"[CLS] {p} [SEP] 09 august 2024 [SEP]" for p in element["paragraphs"]]
+            second_sentences: List[str] = element["paragraphs"]
             first_sentences: List[str] = [question] * len(second_sentences)
+            reference_dates: List[str] = [reference_date] * len(second_sentences)
             ground_truth: List[float] = [0.0] * len(second_sentences)
 
-            inference.set_sentences(first_sentences, second_sentences, ground_truth)
+            inference.set_sentences(first_sentences, reference_dates, second_sentences, reference_dates, ground_truth)
 
             similarities: List[float] = None
 

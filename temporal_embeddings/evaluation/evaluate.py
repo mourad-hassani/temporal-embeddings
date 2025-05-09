@@ -9,12 +9,32 @@ import numpy as np
 from temporal_embeddings.utils.os.folder_management import create_folders
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters import MAX_SEQ_LEN
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.temporal_bert_evaluation import evaluate_temporal_bert
+from temporal_embeddings.evaluation.utils.evaluation.temporal_bert_full.temporal_bert_full import evaluate_temporal_bert_full
+from temporal_embeddings.evaluation.utils.evaluation.mistral.mistral_evaluation import evaluate_mistral
+from temporal_embeddings.evaluation.utils.evaluation.alibaba.alibaba_evaluation import evaluate_alibaba
+from temporal_embeddings.evaluation.utils.evaluation.salesforce.salesforce_evaluation import evaluate_salesforce
 
 DATA_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
 
 def evaluate_model(model_name: str) -> None:
     if model_name == "temporal_bert":
         evaluate_temporal_bert()
+        return
+    
+    if model_name == "temporal_bert_full":
+        evaluate_temporal_bert_full()
+        return
+    
+    if model_name == "mistral":
+        evaluate_mistral()
+        return
+    
+    if model_name == "alibaba":
+        evaluate_alibaba()
+        return
+    
+    if model_name == "salesforce":
+        evaluate_salesforce()
         return
 
     model: SentenceTransformer = SentenceTransformer(model_name)
@@ -32,16 +52,14 @@ def evaluate_model(model_name: str) -> None:
             ground_truth.append(element["answer"])
 
             question: str = element["question"]
-            question = f"[CLS] {question} [SEP] 09 august 2024 [SEP]"
-            question_emb = model.encode(question, convert_to_tensor=True)
+            question_emb = model.encode(question, convert_to_tensor=True) if model_name != "BAAI/bge-large-en" else model.encode(question, convert_to_tensor=True, normalize_embeddings=True)
 
             paragraphs: List[str] = element["paragraphs"]
 
             similarities: List[float] = []
             
             for paragraph in paragraphs:
-                paragraph = f"[CLS] {paragraph} [SEP] 09 august 2024 [SEP]"
-                paragraph_emb = model.encode(paragraph, convert_to_tensor=True)
+                paragraph_emb = model.encode(paragraph, convert_to_tensor=True) if model_name != "BAAI/bge-large-en" else model.encode(paragraph, convert_to_tensor=True, normalize_embeddings=True)
 
                 similarities.append(util.cos_sim(question_emb, paragraph_emb)[0])
 

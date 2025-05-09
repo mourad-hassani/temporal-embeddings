@@ -4,23 +4,38 @@ import torch
 from torch.utils.data import DataLoader
 from transformers.tokenization_utils import BatchEncoding, PreTrainedTokenizer
 
-from temporal_embeddings.parameters.parameters import SHUFFLE, BATCH_SIZE, NUM_WORKERS, DROP_lAST, MAX_SEQ_LEN, SPECIAL_TOKENS
+from temporal_embeddings.parameters.parameters import SHUFFLE, NUM_WORKERS, DROP_lAST, SPECIAL_TOKENS, MAX_SEQ_LEN
+from temporal_embeddings.utils.positional_encoding import positional_encoding
 
 class GaussData:
-    def __init__(self, file_path: Path, tokenizer: PreTrainedTokenizer):
+    def __init__(self, file_path: Path, tokenizer: PreTrainedTokenizer, batch_size: int, data_fraction: float = 1.0) -> None:
         self.tokenizer: PreTrainedTokenizer = tokenizer
+        self.batch_size: int = batch_size
 
         # self.dataset is of the form : [{"sent0": "...", "sent1": "...", "score": ...}]
-        self.dataset = pd.read_csv(str(file_path), verbose=True).to_dict("records")
+        print("Loading the dataset")
+        self.dataset = pd.read_csv(str(file_path))
+        self.dataset = self.dataset[
+            self.dataset["sent0"].str.split().str.len().lt(100) & 
+            self.dataset["sent1"].str.split().str.len().lt(100)
+        ]
+        self.dataset = self.dataset.to_dict("records")
         self.dataset_length = len(self.dataset)
 
-        self.train_dataset = self.dataset[:int(0.9 * self.dataset_length)]
-        self.val_dataset = self.dataset[int(0.9 * self.dataset_length):int(0.95 * self.dataset_length)]
-        self.test_dataset = self.dataset[int(0.95 * self.dataset_length):]
+        print("Dataset length before applying fraction:", self.dataset_length)
 
-        self.train_dataloader = DataLoader(self.train_dataset, collate_fn=self.collate_fn, batch_size=BATCH_SIZE, shuffle=SHUFFLE, num_workers=NUM_WORKERS, pin_memory=True, drop_last=DROP_lAST)
-        self.val_dataloader = DataLoader(self.val_dataset, collate_fn=self.collate_fn, batch_size=BATCH_SIZE, shuffle=SHUFFLE, num_workers=NUM_WORKERS, pin_memory=True, drop_last=DROP_lAST)
-        self.test_dataloader = DataLoader(self.test_dataset, collate_fn=self.collate_fn, batch_size=BATCH_SIZE, shuffle=SHUFFLE, num_workers=NUM_WORKERS, pin_memory=True, drop_last=DROP_lAST)
+        self.dataset = self.dataset[:int(data_fraction * self.dataset_length)]
+        self.dataset_length = len(self.dataset)
+
+        print("Dataset length:", self.dataset_length)
+
+        self.train_dataset = self.dataset[:int(0.9 * self.dataset_length)]
+        self.val_dataset = self.dataset[int(0.98 * self.dataset_length):int(0.99 * self.dataset_length)]
+        self.test_dataset = self.dataset[int(0.99 * self.dataset_length):]
+
+        self.train_dataloader = DataLoader(self.train_dataset, collate_fn=self.collate_fn, batch_size=self.batch_size, shuffle=SHUFFLE, num_workers=NUM_WORKERS, pin_memory=True, drop_last=DROP_lAST)
+        self.val_dataloader = DataLoader(self.val_dataset, collate_fn=self.collate_fn, batch_size=self.batch_size, shuffle=SHUFFLE, num_workers=NUM_WORKERS, pin_memory=True, drop_last=DROP_lAST)
+        self.test_dataloader = DataLoader(self.test_dataset, collate_fn=self.collate_fn, batch_size=self.batch_size, shuffle=SHUFFLE, num_workers=NUM_WORKERS, pin_memory=True, drop_last=DROP_lAST)
     
     def tokenize(self, batch: list[str]) -> BatchEncoding:
         return self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt", max_length=MAX_SEQ_LEN, add_special_tokens=SPECIAL_TOKENS)
@@ -33,7 +48,9 @@ class GaussData:
         return BatchEncoding(
             {
                 "sent0": self.tokenize([d["sent0"] for d in data_list]),
+                "sent0_date": positional_encoding([d["sent0_date"] for d in data_list]),
                 "sent1": self.tokenize([d["sent1"] for d in data_list]),
+                "sent1_date": positional_encoding([d["sent1_date"] for d in data_list]),
                 "score": torch.FloatTensor([float(d["score"]) for d in data_list]),
             }
         )

@@ -7,22 +7,38 @@ from transformers.optimization import get_linear_schedule_with_warmup
 from scipy.stats import spearmanr
 
 from temporal_embeddings.model.gauss_model import GaussModel, GaussOutput
-from temporal_embeddings.parameters.parameters import BATCH_SIZE, LR, NUM_WORKERS, MAX_SEQ_LEN, DTYPE, DEVICE, MODEL_NAME, INPUT_FILE_PATH, OUTPUT_DIRECTORY_PATH, WEIGHT_DECAY, EPOCHS, NUM_WARMUP_RATIO, SPECIAL_TOKENS
+from temporal_embeddings.parameters.parameters import (
+    NUM_WORKERS, MAX_SEQ_LEN, DTYPE, DEVICE, SPECIAL_TOKENS
+)
 from temporal_embeddings.utils.gauss_data import GaussData
 from temporal_embeddings.utils.log_info import log_info
 from temporal_embeddings.utils.similarity import asymmetrical_kl_sim
+from temporal_embeddings.utils.positional_encoding import positional_encoding
 
 class Execution():
-    def __init__(self):
-        self.model: GaussModel = GaussModel(MODEL_NAME, True).eval().to(device=DEVICE)
-        self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, model_max_length = MAX_SEQ_LEN, use_fast = False)
+    def __init__(self, data_fraction: float, model_name: str, batch_size: int, lr: float, weight_decay: float, epochs: int, num_warmup_ratio: float, temperature: float, num_eval_steps: int, input_file_path: str, output_directory_path: str):
+        self.parameters = {
+            "model_name": model_name,
+            "batch_size": batch_size,
+            "learning_rate": lr,
+            "weight_decay": weight_decay,
+            "epochs": epochs,
+            "num_warmup_ratio": num_warmup_ratio,
+            "temperature": temperature,
+            "num_eval_steps": num_eval_steps,
+            "input_file_path": input_file_path,
+            "output_directory_path": output_directory_path,
+        }
 
-        self.gauss_data: GaussData = GaussData(INPUT_FILE_PATH, self.tokenizer)
+        self.model: GaussModel = GaussModel(self.parameters["model_name"], False).eval().to(DEVICE)
+        self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(self.parameters["model_name"], model_max_length=MAX_SEQ_LEN, use_fast=True)
+
+        self.gauss_data: GaussData = GaussData(self.parameters["input_file_path"], self.tokenizer, self.parameters["batch_size"], data_fraction)
 
         self.optimizer, self.lr_scheduler = self.create_optimizer(model=self.model, train_steps_per_epoch=len(self.gauss_data.train_dataloader))
 
     def tokenize(self, batch: list[str]) -> BatchEncoding:
-        return self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt", max_length=MAX_SEQ_LEN, add_special_tokens=SPECIAL_TOKENS).to("cuda:0")
+        return self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt", max_length=MAX_SEQ_LEN, add_special_tokens=SPECIAL_TOKENS).to(DEVICE)
     
     def collate_fn(self, data_list: list[dict]) -> BatchEncoding:
         """
@@ -32,7 +48,9 @@ class Execution():
         return BatchEncoding(
             {
                 "sent0": self.tokenize([d["sent0"] for d in data_list]),
+                "sent0_date": positional_encoding([d["sent0_date"] for d in data_list]),
                 "sent1": self.tokenize([d["sent1"] for d in data_list]),
+                "sent1_date": positional_encoding([d["sent1_date"] for d in data_list]),
                 "score": torch.FloatTensor([float(d["score"]) for d in data_list]),
             }
         )
@@ -43,7 +61,7 @@ class Execution():
                 {
                     "params": [param for name, param in model.named_parameters() if name not in no_decay
                     ],
-                    "weight_decay": WEIGHT_DECAY,
+                    "weight_decay": self.parameters["weight_decay"],
                 },
                 {
                     "params": [param for name, param in model.named_parameters() if name in no_decay
@@ -52,10 +70,10 @@ class Execution():
                 },
             ]
 
-            optimizer = torch.optim.AdamW(optimizer_grouped_parameters, lr=LR)
+            optimizer = torch.optim.AdamW(optimizer_grouped_parameters, lr=self.parameters["learning_rate"])
 
-            num_training_steps = train_steps_per_epoch * EPOCHS
-            num_warmup_steps = int(num_training_steps * NUM_WARMUP_RATIO)
+            num_training_steps = train_steps_per_epoch * self.parameters["epochs"]
+            num_warmup_steps = int(num_training_steps * self.parameters["num_warmup_ratio"])
 
             lr_scheduler = get_linear_schedule_with_warmup(
                 optimizer=optimizer,
@@ -66,7 +84,7 @@ class Execution():
             return optimizer, lr_scheduler
 
     @torch.inference_mode()
-    def evaluator(self, split: str = "val") -> float:
+    def evaluator(self, split: str) -> float:
         self.model.eval()
 
         sent0_output: list[GaussOutput] = []
@@ -78,16 +96,20 @@ class Execution():
         
         if split == "train":
             data_loader: DataLoader = self.gauss_data.train_dataloader
+        if split == "val":
+            data_loader: DataLoader = self.gauss_data.val_dataloader
+        elif split == "test":
+            data_loader: DataLoader = self.gauss_data.test_dataloader
 
-        for batch in data_loader:
+        for batch in tqdm(data_loader, desc=f"Evaluating {split} split"):
             with torch.cuda.amp.autocast(dtype=DTYPE):
                 sent0_input_ids = batch.sent0.input_ids.to(DEVICE)
                 sent0_attention_mask = batch.sent0.attention_mask.to(DEVICE)
-                sent0_out = self.model.forward(input_ids=sent0_input_ids, attention_mask=sent0_attention_mask)
+                sent0_out = self.model.forward(input_ids=sent0_input_ids, attention_mask=sent0_attention_mask, dates=batch.sent0_date.to(DEVICE))
                 
                 sent1_input_ids = batch.sent1.input_ids.to(DEVICE)
                 sent1_attention_mask = batch.sent1.attention_mask.to(DEVICE)
-                sent1_out = self.model.forward(input_ids=sent1_input_ids, attention_mask=sent1_attention_mask)
+                sent1_out = self.model.forward(input_ids=sent1_input_ids, attention_mask=sent1_attention_mask, dates=batch.sent1_date.to(DEVICE))
                 
                 scores = torch.cat([scores.to(DEVICE), (batch.to(DEVICE).score)], dim=0)
 
@@ -107,7 +129,7 @@ class Execution():
     def encode_fn(self, sentences: list[str], **_) -> GaussOutput:
         self.model.eval()
 
-        data_loader = DataLoader(sentences, collate_fn=self.tokenize, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS, pin_memory=True, drop_last=False)
+        data_loader = DataLoader(sentences, collate_fn=self.tokenize, batch_size=self.parameters["batch_size"], shuffle=False, num_workers=NUM_WORKERS, pin_memory=True, drop_last=False)
 
         output: list[GaussOutput] = []
         for batch in data_loader:
@@ -123,7 +145,7 @@ class Execution():
         return output
 
     def log(self, metrics: dict) -> None:
-        log_info(metrics, OUTPUT_DIRECTORY_PATH / "log.csv")
+        log_info(metrics, f"{self.parameters['output_directory_path']}/log.csv")
         tqdm.write(
             f"epoch: {metrics['epoch']} \t"
             f"step: {metrics['step']} \t"
