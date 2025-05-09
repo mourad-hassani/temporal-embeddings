@@ -129,7 +129,7 @@ class Execution():
     def encode_fn(self, sentences: list[str], **_) -> GaussOutput:
         self.model.eval()
 
-        data_loader = DataLoader(sentences, collate_fn=self.tokenize, batch_size=self.parameters[""], shuffle=False, num_workers=NUM_WORKERS, pin_memory=True, drop_last=False)
+        data_loader = DataLoader(sentences, collate_fn=self.tokenize, batch_size=self.parameters["batch_size"], shuffle=False, num_workers=NUM_WORKERS, pin_memory=True, drop_last=False)
 
         output: list[GaussOutput] = []
         for batch in data_loader:
@@ -145,7 +145,7 @@ class Execution():
         return output
 
     def log(self, metrics: dict) -> None:
-        log_info(metrics, f"{self.parameters["output_directory_path"]}/log.csv")
+        log_info(metrics, f"{self.parameters['output_directory_path']}/log.csv")
         tqdm.write(
             f"epoch: {metrics['epoch']} \t"
             f"step: {metrics['step']} \t"
