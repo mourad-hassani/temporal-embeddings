@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --time=23:59:00
 #SBATCH --gres=gpu:2
-#SBATCH --nodelist=n102
+#SBATCH --nodelist=n101
 
 source ~/.bashrc
 cd /mnt/beegfs/home/hassani/training_an_em/project/temporal-embeddings
