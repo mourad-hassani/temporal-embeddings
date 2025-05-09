@@ -35,8 +35,8 @@ def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weig
         "num_warmup_ratio": num_warmup_ratio,
         "temperature": temperature,
         "num_eval_steps": num_eval_steps,
-        "input_file_path": input_file_path,
-        "output_directory_path": output_directory_path,
+        "input_file_path": str(input_file_path),
+        "output_directory_path": str(output_directory_path),
     }
     
     with open(f"{log_dir_path}/parameters.json", "w") as param_file:
@@ -170,7 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_warmup_ratio", type=float, default=NUM_WARMUP_RATIO, help="Warmup ratio.")
     parser.add_argument("--temperature", type=float, default=TEMPERATURE, help="Temperature for loss scaling.")
     parser.add_argument("--num_eval_steps", type=int, default=NUM_EVAL_STEPS, help="Number of evaluation steps.")
-    parser.add_argument("--input_file_path", type=str, default=INPUT_FILE_PATH, help="Path to the input file.")
+    parser.add_argument("--input_file_path", type=str, default=str(INPUT_FILE_PATH), help="Path to the input file.")
     parser.add_argument("--output_directory_path", type=str, default=str(OUTPUT_DIRECTORY_PATH), help="Path to the output directory.")
     args = parser.parse_args()
 
