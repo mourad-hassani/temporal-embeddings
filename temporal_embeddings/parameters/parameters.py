@@ -1,7 +1,7 @@
 from pathlib import Path
 import torch
 
-MODEL_NAME: str = "sentence-transformers/all-mpnet-base-v2"
+MODEL_NAME: str = "thenlper/gte-base"
 
 BATCH_SIZE: int = 64
 SHUFFLE: bool = True
@@ -11,7 +11,7 @@ LR: float = 3e-5
 WEIGHT_DECAY: float = 2e-4
 EPOCHS: int = 2
 NUM_WARMUP_RATIO: float = 0.1
-MAX_SEQ_LEN: int = 64
+MAX_SEQ_LEN: int = 512
 DEVICE: str = "cuda:0"
 INFERENCE_DEVICE: str = "cuda:0"
 DTYPE: torch.dtype = torch.float16
