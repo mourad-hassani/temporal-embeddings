@@ -4,12 +4,13 @@ import torch
 from torch.utils.data import DataLoader
 from transformers.tokenization_utils import BatchEncoding, PreTrainedTokenizer
 
-from temporal_embeddings.parameters.parameters import SHUFFLE, BATCH_SIZE, NUM_WORKERS, DROP_lAST, MAX_SEQ_LEN, SPECIAL_TOKENS
+from temporal_embeddings.parameters.parameters import SHUFFLE, NUM_WORKERS, DROP_lAST, SPECIAL_TOKENS, MAX_SEQ_LEN
 from temporal_embeddings.utils.positional_encoding import positional_encoding
 
 class GaussData:
-    def __init__(self, file_path: Path, tokenizer: PreTrainedTokenizer, data_fraction: float = 1.0) -> None:
+    def __init__(self, file_path: Path, tokenizer: PreTrainedTokenizer, batch_size: int, data_fraction: float = 1.0) -> None:
         self.tokenizer: PreTrainedTokenizer = tokenizer
+        self.batch_size: int = batch_size
 
         # self.dataset is of the form : [{"sent0": "...", "sent1": "...", "score": ...}]
         print("Loading the dataset")
@@ -32,9 +33,9 @@ class GaussData:
         self.val_dataset = self.dataset[int(0.98 * self.dataset_length):int(0.99 * self.dataset_length)]
         self.test_dataset = self.dataset[int(0.99 * self.dataset_length):]
 
-        self.train_dataloader = DataLoader(self.train_dataset, collate_fn=self.collate_fn, batch_size=BATCH_SIZE, shuffle=SHUFFLE, num_workers=NUM_WORKERS, pin_memory=True, drop_last=DROP_lAST)
-        self.val_dataloader = DataLoader(self.val_dataset, collate_fn=self.collate_fn, batch_size=BATCH_SIZE, shuffle=SHUFFLE, num_workers=NUM_WORKERS, pin_memory=True, drop_last=DROP_lAST)
-        self.test_dataloader = DataLoader(self.test_dataset, collate_fn=self.collate_fn, batch_size=BATCH_SIZE, shuffle=SHUFFLE, num_workers=NUM_WORKERS, pin_memory=True, drop_last=DROP_lAST)
+        self.train_dataloader = DataLoader(self.train_dataset, collate_fn=self.collate_fn, batch_size=self.batch_size, shuffle=SHUFFLE, num_workers=NUM_WORKERS, pin_memory=True, drop_last=DROP_lAST)
+        self.val_dataloader = DataLoader(self.val_dataset, collate_fn=self.collate_fn, batch_size=self.batch_size, shuffle=SHUFFLE, num_workers=NUM_WORKERS, pin_memory=True, drop_last=DROP_lAST)
+        self.test_dataloader = DataLoader(self.test_dataset, collate_fn=self.collate_fn, batch_size=self.batch_size, shuffle=SHUFFLE, num_workers=NUM_WORKERS, pin_memory=True, drop_last=DROP_lAST)
     
     def tokenize(self, batch: list[str]) -> BatchEncoding:
         return self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt", max_length=MAX_SEQ_LEN, add_special_tokens=SPECIAL_TOKENS)
