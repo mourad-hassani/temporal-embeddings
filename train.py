@@ -150,20 +150,20 @@ def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weig
         "best-step": best_step,
         "best-dev-auc": best_dev_score,
     }
-    dev_metrics_path = f"{output_directory_path}/metrics/dev_metrics_{model_name}_{current_time}.json"
+    dev_metrics_path = f"{output_directory_path}/metrics/dev_metrics_{model_name.replace("/", "_")}_{current_time}.json"
     create_folders(Path(dev_metrics_path).parent)
     save_json(dev_metrics, dev_metrics_path)
     print("Dev metrics saved in:", dev_metrics_path)
 
     execution.model.load_state_dict(best_state_dict)
-    model_path = f"{output_directory_path}/trained_models/model_{model_name}_{current_time}.pth"
+    model_path = f"{output_directory_path}/trained_models/model_{model_name.replace("/", "_")}_{current_time}.pth"
     create_folders(Path(model_path).parent)
     torch.save(execution.model.state_dict(), model_path)
     print("Model saved in:", model_path)
     execution.model.eval().to(DEVICE)
 
     metrics = execution.evaluator(split="train")
-    metrics_path = f"{output_directory_path}/metrics/metrics_{model_name}_{current_time}.json"
+    metrics_path = f"{output_directory_path}/metrics/metrics_{model_name.replace("/", "_")}_{current_time}.json"
     create_folders(Path(metrics_path).parent)
     save_json(metrics, metrics_path)
     print("Train metrics saved in:", metrics_path)
