@@ -71,47 +71,57 @@ def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weig
     execution.log(val_metrics)
     best_state_dict = execution.clone_state_dict()
 
+    # Enable pin_memory for DataLoader
+    execution.gauss_data.train_dataloader.pin_memory = True
+
+    # Initialize gradient accumulation variables
+    accumulation_steps = 4  # Accumulate gradients over 4 steps
     scaler = torch.cuda.amp.GradScaler()
-    
     current_step = 0
 
     for epoch in trange(epochs, leave=False, dynamic_ncols=True, desc="Epoch"):
         train_losses = []
         execution.model.train()
 
-        for batch in tqdm(execution.gauss_data.train_dataloader, total=len(execution.gauss_data.train_dataloader), dynamic_ncols=True, leave=False, desc="Step"):
+        for batch_idx, batch in enumerate(
+            tqdm(execution.gauss_data.train_dataloader, total=len(execution.gauss_data.train_dataloader), dynamic_ncols=True, leave=False, desc="Step")
+        ):
             current_step += 1
             batch: BatchEncoding = batch.to(DEVICE)
 
             with torch.cuda.amp.autocast(dtype=DTYPE):
-                sent0_input_ids = batch.sent0.input_ids.to(DEVICE)
-                sent0_attention_mask = batch.sent0.attention_mask.to(DEVICE)
-                sent0_out: GaussOutput = execution.model.forward(input_ids=sent0_input_ids, attention_mask=sent0_attention_mask, dates=batch.sent0_date.to(DEVICE))
+                sent0_out: GaussOutput = execution.model.forward(
+                    input_ids=batch.sent0.input_ids.to(DEVICE),
+                    attention_mask=batch.sent0.attention_mask.to(DEVICE),
+                    dates=batch.sent0_date.to(DEVICE),
+                )
+                sent1_out: GaussOutput = execution.model.forward(
+                    input_ids=batch.sent1.input_ids.to(DEVICE),
+                    attention_mask=batch.sent1.attention_mask.to(DEVICE),
+                    dates=batch.sent1_date.to(DEVICE),
+                )
 
-                sent1_input_ids = batch.sent1.input_ids.to(DEVICE)
-                sent1_attention_mask = batch.sent1.attention_mask.to(DEVICE)
-                sent1_out: GaussOutput = execution.model.forward(input_ids=sent1_input_ids, attention_mask=sent1_attention_mask, dates=batch.sent1_date.to(DEVICE))
+                sim_mat: torch.FloatTensor = asymmetrical_kl_sim(
+                    sent0_out.mu, sent0_out.std, sent1_out.mu, sent1_out.std
+                )
+                criterion = CoSentLoss()
+                loss = criterion(sim_mat, batch.score)
 
-            sim_mat: torch.FloatTensor = asymmetrical_kl_sim(sent0_out.mu, sent0_out.std, sent1_out.mu, sent1_out.std)
-            
-            criterion = CoSentLoss()
-            loss = criterion(sim_mat, batch.score)
+            train_losses.append(loss.item() / accumulation_steps)
 
-            train_losses.append(loss.item())
-
-            execution.optimizer.zero_grad()
+            # Gradient accumulation
             scaler.scale(loss).backward()
-            scaler.step(execution.optimizer)
+            if (batch_idx + 1) % accumulation_steps == 0 or (batch_idx + 1) == len(execution.gauss_data.train_dataloader):
+                scaler.step(execution.optimizer)
+                scaler.update()
+                execution.optimizer.zero_grad()
 
-            scale = scaler.get_scale()
-            scaler.update()
-
-            if scale <= scaler.get_scale():
+                # Update learning rate scheduler
                 execution.lr_scheduler.step()
-            
-            if current_step % num_eval_steps == 0:
-                execution.model.eval()
 
+            # Reduce logging frequency
+            if current_step % (num_eval_steps * 2) == 0:
+                execution.model.eval()
                 dev_score = execution.evaluator("val")
 
                 if best_dev_score < dev_score:
@@ -128,21 +138,9 @@ def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weig
 
                 print(f"Writing to TensorBoard at step {current_step}:")
                 for key, value in val_metrics.items():
-                    print(f"  Metrics/{key}: {value}")
                     writer.add_scalar(f"Metrics/{key}", value, current_step)
 
-                print(f"  Loss/train: {sum(train_losses) / len(train_losses)}")
-                writer.add_scalar("Loss/train", sum(train_losses) / len(train_losses), current_step)
-
-                print(f"  Score/dev: {dev_score}")
-                writer.add_scalar("Score/dev", dev_score, current_step)
-
-                print(f"  Learning_Rate: {execution.optimizer.param_groups[0]['lr']}")
-                writer.add_scalar("Learning_Rate", execution.optimizer.param_groups[0]["lr"], current_step)
-
-                execution.log(val_metrics)
                 train_losses = []
-
                 execution.model.train()
 
     dev_metrics = {
