@@ -1,5 +1,6 @@
 import argparse
 import json
+from datetime import datetime
 
 import torch
 from tqdm import trange, tqdm
@@ -16,7 +17,7 @@ from temporal_embeddings.utils.set_seed import set_seed
 from temporal_embeddings.execution.execution import Execution
 from temporal_embeddings.utils.save import save_json
 from temporal_embeddings.utils.loss.cosent_loss import CoSentLoss
-from datetime import datetime
+from temporal_embeddings.utils.os.folder_management import create_folders
 
 def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weight_decay: float, epochs: int, 
          num_warmup_ratio: float, temperature: float, num_eval_steps: int, 
@@ -148,14 +149,20 @@ def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weig
         "best-step": best_step,
         "best-dev-auc": best_dev_score,
     }
-    save_json(dev_metrics, f"{output_directory_path}/metrics/dev_metrics_{model_name}_{current_time}.json")
+    dev_metrics_path = f"{output_directory_path}/metrics/dev_metrics_{model_name}_{current_time}.json"
+    save_json(dev_metrics, dev_metrics_path)
+    print("Dev metrics saved in:", dev_metrics_path)
 
     execution.model.load_state_dict(best_state_dict)
-    torch.save(execution.model.state_dict(), f"{output_directory_path}/trained_models/model_{model_name}_{current_time}.pth")
+    model_path = f"{output_directory_path}/trained_models/model_{model_name}_{current_time}.pth"
+    torch.save(execution.model.state_dict(), model_path)
+    print("Model saved in:", model_path)
     execution.model.eval().to(DEVICE)
 
     metrics = execution.evaluator(split="train")
-    save_json(metrics, f"{output_directory_path}/metrics/metrics_{model_name}_{current_time}.json")
+    metrics_path = f"{output_directory_path}/metrics/metrics_{model_name}_{current_time}.json"
+    save_json(metrics, metrics_path)
+    print("Train metrics saved in:", metrics_path)
 
     writer.close()
 
