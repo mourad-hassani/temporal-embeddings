@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=23:00:00
+#SBATCH --time=60:00:00
 #SBATCH --gres=gpu:1
 #SBATCH --nodelist=n102
 

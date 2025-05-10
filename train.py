@@ -23,7 +23,7 @@ def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weig
          input_file_path: str, output_directory_path: str) -> None:
     set_seed(seed=SEED)
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    log_dir_path: str = f"logs/runs/experiment_{current_time}"
+    log_dir_path: str = f"logs/runs/{model_name}_{current_time}"
     writer = SummaryWriter(log_dir=log_dir_path)
     
     parameters = {
@@ -148,14 +148,14 @@ def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weig
         "best-step": best_step,
         "best-dev-auc": best_dev_score,
     }
-    save_json(dev_metrics, f"{output_directory_path}/dev-metrics.json")
+    save_json(dev_metrics, f"{output_directory_path}/metrics/dev_metrics_{model_name}_{current_time}.json")
 
     execution.model.load_state_dict(best_state_dict)
-    torch.save(execution.model.state_dict(), "temporal_bert.pth")
+    torch.save(execution.model.state_dict(), f"{output_directory_path}/trained_models/model_{model_name}_{current_time}.pth")
     execution.model.eval().to(DEVICE)
 
     metrics = execution.evaluator(split="train")
-    save_json(metrics, f"{output_directory_path}/metrics.json")
+    save_json(metrics, f"{output_directory_path}/metrics/metrics_{model_name}_{current_time}.json")
 
     writer.close()
 
