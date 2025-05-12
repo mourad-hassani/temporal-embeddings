@@ -16,7 +16,7 @@ class Inference:
         self.batch_size: int = batch_size
         self.max_seq_len: int = max_seq_len
 
-        if model_name in ["all-minilm-l6-v2", "all-miniml-l6-v2-full"]:
+        if model_name in ["all-minilm-l6-v2", "all-minilm-l6-v2-full"]:
             self.model_name = "sentence-transformers/all-MiniLM-L6-v2"
 
         self.model: GaussModel = GaussModel(self.model_name, False).eval().to(INFERENCE_DEVICE)
