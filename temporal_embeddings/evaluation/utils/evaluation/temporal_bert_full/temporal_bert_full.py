@@ -17,37 +17,7 @@ def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: in
     SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert_full/{model_name}/similarities.json")
     create_folders(SIMILARITIES_FILE_PATH.parent)
     GROUND_TRUTH_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
-    evaluate_model("all-mpnet-base-v2")
-    evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len)
-
-    with SBERT_SIMILARITIES_FILE_PATH.open("r", encoding="utf-8") as f1, SIMILARITIES_FILE_PATH.open("r", encoding="utf-8") as f2:
-        list1 = json.load(f1)
-        list2 = json.load(f2)
-
-    def rank_list(values: List[float]) -> List[int]:
-        sorted_indices = sorted(range(len(values)), key=lambda x: values[x], reverse=True)
-        ranks = [0] * len(values)
-        for rank, index in enumerate(sorted_indices):
-            ranks[index] = rank
-        return ranks
-
-    list1 = [rank_list(sublist) for sublist in list1]
-    list2 = [rank_list(sublist) for sublist in list2]
     
-    merged_list = [[((6*x) + y) for x, y in zip(sublist1, sublist2)] for sublist1, sublist2 in zip(list1, list2)]
-
-    similarities_list: List[int] = [sublist.index(min(sublist)) for sublist in merged_list]
-
-    ground_truth: List[int] = []
-
-    with open(GROUND_TRUTH_FILE_PATH, "r") as f:
-        data: List[dict] = json.load(f)
-
-        for e in data:
-            ground_truth.append(e["answer"])
-
-    print(compute_accuracy(ground_truth, similarities_list))
-
     def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, max_seq_len: int) -> None:
         similarities_list: List[List[float]] = []
 
@@ -120,3 +90,34 @@ def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: in
         assert first_list.size == second_list.size
 
         return sum(first_list == second_list) / first_list.size
+    
+    evaluate_model("all-mpnet-base-v2")
+    evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len)
+
+    with SBERT_SIMILARITIES_FILE_PATH.open("r", encoding="utf-8") as f1, SIMILARITIES_FILE_PATH.open("r", encoding="utf-8") as f2:
+        list1 = json.load(f1)
+        list2 = json.load(f2)
+
+    def rank_list(values: List[float]) -> List[int]:
+        sorted_indices = sorted(range(len(values)), key=lambda x: values[x], reverse=True)
+        ranks = [0] * len(values)
+        for rank, index in enumerate(sorted_indices):
+            ranks[index] = rank
+        return ranks
+
+    list1 = [rank_list(sublist) for sublist in list1]
+    list2 = [rank_list(sublist) for sublist in list2]
+    
+    merged_list = [[((6*x) + y) for x, y in zip(sublist1, sublist2)] for sublist1, sublist2 in zip(list1, list2)]
+
+    similarities_list: List[int] = [sublist.index(min(sublist)) for sublist in merged_list]
+
+    ground_truth: List[int] = []
+
+    with open(GROUND_TRUTH_FILE_PATH, "r") as f:
+        data: List[dict] = json.load(f)
+
+        for e in data:
+            ground_truth.append(e["answer"])
+
+    print(compute_accuracy(ground_truth, similarities_list))
