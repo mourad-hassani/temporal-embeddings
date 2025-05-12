@@ -15,10 +15,14 @@ class Inference:
         self.model_path: str = model_path
         self.batch_size: int = batch_size
         self.max_seq_len: int = max_seq_len
-        self.model: GaussModel = GaussModel(model_name, False).eval().to(INFERENCE_DEVICE)
-        self.model.load_state_dict(torch.load(model_path, map_location=torch.device(INFERENCE_DEVICE)))
 
-        self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(model_name, model_max_length = max_seq_len, use_fast = False)
+        if model_name == "all-minilm-l6-v2":
+            self.model_name = "sentence-transformers/all-MiniLM-L6-v2"
+
+        self.model: GaussModel = GaussModel(self.model_name, False).eval().to(INFERENCE_DEVICE)
+        self.model.load_state_dict(torch.load(self.model_path, map_location=torch.device(INFERENCE_DEVICE)))
+
+        self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(self.model_name, model_max_length = self.max_seq_len, use_fast = False)
 
         self.cached_embeddings: Dict = {}
 
