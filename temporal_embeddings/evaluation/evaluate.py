@@ -21,7 +21,7 @@ def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_le
         evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len)
         return
     
-    if model_name == "temporal_bert_full":
+    if model_name in ["temporal_bert_full", "all-miniml-l6-v2-full"]:
         evaluate_temporal_bert_full()
         return
     
