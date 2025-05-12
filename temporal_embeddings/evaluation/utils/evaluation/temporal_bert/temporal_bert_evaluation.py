@@ -6,11 +6,13 @@ import numpy as np
 from tqdm import tqdm
 
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.inference import Inference
+from temporal_embeddings.utils.os.folder_management import create_folders
 
 
 def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, max_seq_len: int) -> None:
     GROUND_TRUTH_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
     SBERT_SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert/{model_name}/temporal_bert_similarities.json")
+    create_folders(SBERT_SIMILARITIES_FILE_PATH)
 
     similarities_list: List[int] = []
 
