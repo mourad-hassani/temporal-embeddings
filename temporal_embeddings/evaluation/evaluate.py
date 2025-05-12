@@ -16,9 +16,9 @@ from temporal_embeddings.evaluation.utils.evaluation.salesforce.salesforce_evalu
 
 DATA_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
 
-def evaluate_model(model_name: str, model_path: str) -> None:
+def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_len: int) -> None:
     if model_name in ["temporal_bert", "all-minilm-l6-v2"]:
-        evaluate_temporal_bert(model_name, model_path)
+        evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len)
         return
     
     if model_name == "temporal_bert_full":

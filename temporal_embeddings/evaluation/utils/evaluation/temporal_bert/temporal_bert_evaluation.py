@@ -8,7 +8,7 @@ from tqdm import tqdm
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.inference import Inference
 
 
-def evaluate_temporal_bert(model_name: str, model_path: str) -> None:
+def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, max_seq_len: int) -> None:
     GROUND_TRUTH_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
     SBERT_SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert/{model_name}/temporal_bert_similarities.json")
 
@@ -19,7 +19,7 @@ def evaluate_temporal_bert(model_name: str, model_path: str) -> None:
     with GROUND_TRUTH_FILE_PATH.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
-        inference: Inference = Inference(model_path=model_path)
+        inference: Inference = Inference(model_name=model_name, model_path=model_path, batch_size=batch_size, max_seq_len=max_seq_len)
 
         for element in tqdm(data):
             question: str = element["question"]

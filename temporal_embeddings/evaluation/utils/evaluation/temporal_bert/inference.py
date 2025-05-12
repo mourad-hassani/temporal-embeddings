@@ -5,16 +5,20 @@ from transformers import AutoTokenizer
 from typing import List, Dict
 
 from temporal_embeddings.model.gauss_model import GaussModel, GaussOutput
-from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters import MODEL_NAME, INFERENCE_DEVICE, BATCH_SIZE, NUM_WORKERS, MAX_SEQ_LEN, SPECIAL_TOKENS
+from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters import INFERENCE_DEVICE, NUM_WORKERS, SPECIAL_TOKENS
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.similarity import asymmetrical_kl_sim
 from temporal_embeddings.utils.positional_encoding import positional_encoding
 
 class Inference:
-    def __init__(self, model_path: str = None):
-        self.model: GaussModel = GaussModel(MODEL_NAME, False).eval().to(INFERENCE_DEVICE)
+    def __init__(self, model_name: str, model_path: str, batch_size: int, max_seq_len: int):
+        self.model_name: str = model_name
+        self.model_path: str = model_path
+        self.batch_size: int = batch_size
+        self.max_seq_len: int = max_seq_len
+        self.model: GaussModel = GaussModel(model_name, False).eval().to(INFERENCE_DEVICE)
         self.model.load_state_dict(torch.load(model_path, map_location=torch.device(INFERENCE_DEVICE)))
 
-        self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, model_max_length = MAX_SEQ_LEN, use_fast = False)
+        self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(model_name, model_max_length = max_seq_len, use_fast = False)
 
         self.cached_embeddings: Dict = {}
 
@@ -23,10 +27,10 @@ class Inference:
         self.sentences1_dates, self.sentences2_dates = sentences1_dates, sentences2_dates
 
     def tokenize(self, batch: list[str]) -> BatchEncoding:
-        return self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt", max_length=MAX_SEQ_LEN, add_special_tokens=SPECIAL_TOKENS)
+        return self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt", max_length=self.max_seq_len, add_special_tokens=SPECIAL_TOKENS)
     
     def data_loader(self, sentences: list[str]):
-        return DataLoader(sentences, collate_fn=self.tokenize, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS, pin_memory=True, drop_last=False)
+        return DataLoader(sentences, collate_fn=self.tokenize, batch_size=self.batch_size, shuffle=False, num_workers=NUM_WORKERS, pin_memory=True, drop_last=False)
 
     def sim_fn(self, sent1: list[str], sent1_dates: list[str], sent2: list[str], sent2_dates: list[str]) -> float:
         sent1: GaussOutput = self.encode_fn(sent1, sent1_dates)
@@ -41,7 +45,7 @@ class Inference:
         output: GaussOutput = None
 
         for batch in self.data_loader(sentences):
-            output = self.model.forward(**batch.to(INFERENCE_DEVICE), dates=positional_encoding(dates[:BATCH_SIZE]).to(INFERENCE_DEVICE))
+            output = self.model.forward(**batch.to(INFERENCE_DEVICE), dates=positional_encoding(dates[:self.batch_size]).to(INFERENCE_DEVICE))
             break
 
         return output
