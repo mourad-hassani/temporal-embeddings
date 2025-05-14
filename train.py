@@ -162,7 +162,7 @@ def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weig
     print("Model saved in:", model_path)
     execution.model.eval().to(DEVICE)
 
-    metrics = execution.evaluator(split="train")
+    metrics = execution.evaluator(split="test")
     metrics_path = f"{output_directory_path}/metrics/metrics_{model_name.replace('/', '_')}_{current_time}.json"
     create_folders(Path(metrics_path).parent)
     save_json(metrics, metrics_path)
