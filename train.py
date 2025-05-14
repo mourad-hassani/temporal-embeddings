@@ -22,7 +22,7 @@ from temporal_embeddings.utils.os.folder_management import create_folders
 
 def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weight_decay: float, epochs: int, 
          num_warmup_ratio: float, temperature: float, num_eval_steps: int, 
-         input_file_path: str, output_directory_path: str) -> None:
+         input_file_path: str, output_directory_path: str, continue_training: bool, model_path: str) -> None:
     set_seed(seed=SEED)
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     log_dir_path: str = f"logs/runs/{model_name}_{current_time}"
@@ -39,6 +39,9 @@ def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weig
         "num_eval_steps": num_eval_steps,
         "input_file_path": str(input_file_path),
         "output_directory_path": str(output_directory_path),
+        "data_fraction": data_fraction,
+        "continue_training": continue_training,
+        "model_path": str(model_path) if continue_training else None,
     }
     
     with open(f"{log_dir_path}/parameters.json", "w") as param_file:
@@ -57,7 +60,9 @@ def main(data_fraction: float, model_name: str, batch_size: int, lr: float, weig
                           temperature=temperature, 
                           num_eval_steps=num_eval_steps, 
                           input_file_path=input_file_path, 
-                          output_directory_path=output_directory_path)
+                          output_directory_path=output_directory_path,
+                          continue_training=continue_training,
+                          model_path=model_path)
 
     print("Compute the first dev score")
     best_dev_score = execution.evaluator("val")
@@ -183,6 +188,8 @@ if __name__ == "__main__":
     parser.add_argument("--num_eval_steps", type=int, default=NUM_EVAL_STEPS, help="Number of evaluation steps.")
     parser.add_argument("--input_file_path", type=str, default=str(INPUT_FILE_PATH), help="Path to the input file.")
     parser.add_argument("--output_directory_path", type=str, default=str(OUTPUT_DIRECTORY_PATH), help="Path to the output directory.")
+    parser.add_argument("--continue_training", action="store_true", help="Flag to indicate whether to continue training a previous model.")
+    parser.add_argument("--model_path", type=str, default=None, help="Path to a pre-trained model to continue training.")
     args = parser.parse_args()
 
     main(
@@ -197,4 +204,6 @@ if __name__ == "__main__":
         num_eval_steps=args.num_eval_steps,
         input_file_path=args.input_file_path,
         output_directory_path=args.output_directory_path,
+        continue_training=args.continue_training,
+        model_path=args.model_path,
     )

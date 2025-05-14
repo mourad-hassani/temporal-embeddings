@@ -16,7 +16,7 @@ from temporal_embeddings.utils.similarity import asymmetrical_kl_sim
 from temporal_embeddings.utils.positional_encoding import positional_encoding
 
 class Execution():
-    def __init__(self, data_fraction: float, model_name: str, batch_size: int, lr: float, weight_decay: float, epochs: int, num_warmup_ratio: float, temperature: float, num_eval_steps: int, input_file_path: str, output_directory_path: str):
+    def __init__(self, data_fraction: float, model_name: str, batch_size: int, lr: float, weight_decay: float, epochs: int, num_warmup_ratio: float, temperature: float, num_eval_steps: int, input_file_path: str, output_directory_path: str, continue_training: bool = False, model_path: str = None) -> None:
         self.parameters = {
             "model_name": model_name,
             "batch_size": batch_size,
@@ -31,6 +31,11 @@ class Execution():
         }
 
         self.model: GaussModel = GaussModel(self.parameters["model_name"], False).eval().to(DEVICE)
+        if continue_training:
+            self.model.load_state_dict(torch.load(model_path))
+            self.model.to(DEVICE)
+            self.model.eval()
+        
         self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(self.parameters["model_name"], model_max_length=MAX_SEQ_LEN, use_fast=True)
 
         self.gauss_data: GaussData = GaussData(self.parameters["input_file_path"], self.tokenizer, self.parameters["batch_size"], data_fraction)
