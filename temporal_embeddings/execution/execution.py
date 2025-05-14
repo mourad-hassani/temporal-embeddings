@@ -48,9 +48,7 @@ class Execution():
         return BatchEncoding(
             {
                 "sent0": self.tokenize([d["sent0"] for d in data_list]),
-                "sent0_date": positional_encoding([d["sent0_date"] for d in data_list]),
                 "sent1": self.tokenize([d["sent1"] for d in data_list]),
-                "sent1_date": positional_encoding([d["sent1_date"] for d in data_list]),
                 "score": torch.FloatTensor([float(d["score"]) for d in data_list]),
             }
         )
@@ -105,11 +103,11 @@ class Execution():
             with torch.cuda.amp.autocast(dtype=DTYPE):
                 sent0_input_ids = batch.sent0.input_ids.to(DEVICE)
                 sent0_attention_mask = batch.sent0.attention_mask.to(DEVICE)
-                sent0_out = self.model.forward(input_ids=sent0_input_ids, attention_mask=sent0_attention_mask, dates=batch.sent0_date.to(DEVICE))
+                sent0_out = self.model.forward(input_ids=sent0_input_ids, attention_mask=sent0_attention_mask)
                 
                 sent1_input_ids = batch.sent1.input_ids.to(DEVICE)
                 sent1_attention_mask = batch.sent1.attention_mask.to(DEVICE)
-                sent1_out = self.model.forward(input_ids=sent1_input_ids, attention_mask=sent1_attention_mask, dates=batch.sent1_date.to(DEVICE))
+                sent1_out = self.model.forward(input_ids=sent1_input_ids, attention_mask=sent1_attention_mask)
                 
                 scores = torch.cat([scores.to(DEVICE), (batch.to(DEVICE).score)], dim=0)
 

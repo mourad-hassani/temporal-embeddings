@@ -24,16 +24,15 @@ class GaussModel(nn.Module):
 
         self.hidden_size: int = self.backbone.config.hidden_size
 
-        self.w_mu = nn.Linear(self.hidden_size + POSITIONAL_ENCODING_DIM, self.hidden_size)
-        self.w_var = nn.Linear(self.hidden_size + POSITIONAL_ENCODING_DIM, self.hidden_size)
+        self.w_mu = nn.Linear(self.hidden_size, self.hidden_size)
+        self.w_var = nn.Linear(self.hidden_size, self.hidden_size)
         self.activation = nn.Tanh()
 
-    def forward(self, input_ids, attention_mask, dates, **_) -> GaussOutput:
+    def forward(self, input_ids, attention_mask, **_) -> GaussOutput:
         outputs: BaseModelOutput = self.backbone(input_ids=input_ids, attention_mask=attention_mask)
 
         emb = self.mean_pooling(outputs, attention_mask)
         # emb = outputs.last_hidden_state[:, 0]
-        emb = torch.cat((emb, dates), dim=-1)
 
         mu = self.w_mu(emb)
         mu = self.activation(mu)
