@@ -91,7 +91,7 @@ def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: in
 
         return sum(first_list == second_list) / first_list.size
     
-    evaluate_model("all-mpnet-base-v2")
+    evaluate_model("BAAI/bge-large-en-v1.5")
     evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len)
 
     with SBERT_SIMILARITIES_FILE_PATH.open("r", encoding="utf-8") as f1, SIMILARITIES_FILE_PATH.open("r", encoding="utf-8") as f2:
