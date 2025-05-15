@@ -7,7 +7,6 @@ from tqdm import tqdm
 import numpy as np
 
 from temporal_embeddings.utils.os.folder_management import create_folders
-from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters import MAX_SEQ_LEN
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.temporal_bert_evaluation import evaluate_temporal_bert
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert_full.temporal_bert_full import evaluate_temporal_bert_full
 from temporal_embeddings.evaluation.utils.evaluation.mistral.mistral_evaluation import evaluate_mistral
@@ -38,7 +37,7 @@ def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_le
         return
 
     model: SentenceTransformer = SentenceTransformer(model_name)
-    model.max_seq_length = MAX_SEQ_LEN
+    model.max_seq_length = max_seq_len
 
     output_similarities: List[int] = []
 
