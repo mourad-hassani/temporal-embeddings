@@ -27,7 +27,7 @@ def create_synthetic_dataset(output_file_path: Path = None, size: int = 10) -> N
         first_random_temporal_expression = generate_random_temporal_expression()
         first_random_temporal_text = expression_to_text(first_random_temporal_expression)
         current_date = generate_random_date_full(START_DATE, END_DATE)
-        current_text = expression_to_text(current_date)
+        current_text = expression_to_text(current_date, augmented_version=False)
 
         year = int(current_date.split("-")[0])
         if START_DATE < year < END_DATE:
@@ -37,7 +37,7 @@ def create_synthetic_dataset(output_file_path: Path = None, size: int = 10) -> N
             start_year = START_DATE
             end_year = END_DATE
         current_date_target = generate_random_date_full(start_year, end_year)
-        current_target_text = expression_to_text(current_date_target)
+        current_target_text = expression_to_text(current_date_target, augmented_version=False)
 
         sentence = f"[CLS] {first_random_temporal_text} [SEP] {current_text} [SEP]"
         
