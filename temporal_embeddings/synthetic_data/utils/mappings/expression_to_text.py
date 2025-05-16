@@ -9,9 +9,9 @@ from temporal_embeddings.synthetic_data.utils.offsets.is_offset import is_offset
 from temporal_embeddings.synthetic_data.utils.refs.is_ref import is_ref
 from temporal_embeddings.synthetic_data.utils.intervals.is_interval import is_interval
 
-def expression_to_text(annotation: str, augmented_version: bool = True) -> str:
+def expression_to_text(annotation: str) -> str:
     if is_date(annotation)[0]:
-        return date_to_text(annotation, augmented_version)
+        return date_to_text(annotation)
     
     if is_period(annotation)[0]:
         return period_to_text(annotation)
