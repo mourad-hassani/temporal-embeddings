@@ -16,10 +16,10 @@ from temporal_embeddings.data_utils.utils.compute_similarity_expressions import 
 from temporal_embeddings.synthetic_data.utils.mappings.expression_to_text import expression_to_text
 from temporal_embeddings.synthetic_data.utils.dates.generate_random_date import generate_random_date_full
 
-DATA_FOLDER_PATH: Path = Path("data/synthetic_data")
-OUTPUT_FILE_NAME: Path = Path("synthetic_data.json")
-
 def create_synthetic_dataset(output_file_path: Path = None, size: int = 10) -> None:
+
+    DATA_FOLDER_PATH: Path = output_file_path.parent
+    OUTPUT_FILE_NAME: Path = output_file_path.name
 
     output_data = []
 
