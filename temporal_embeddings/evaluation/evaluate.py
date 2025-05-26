@@ -13,15 +13,19 @@ from temporal_embeddings.evaluation.utils.evaluation.mistral.mistral_evaluation 
 from temporal_embeddings.evaluation.utils.evaluation.alibaba.alibaba_evaluation import evaluate_alibaba
 from temporal_embeddings.evaluation.utils.evaluation.salesforce.salesforce_evaluation import evaluate_salesforce
 
-DATA_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
+def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_len: int, benchmark: str, eval_id: int) -> None:
+    if benchmark == "time_sensitive_qa":
+        dataset_file_path: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
 
-def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_len: int) -> None:
+    elif benchmark == "menat_qa":
+        dataset_file_path: Path = Path("data/evaluation/menat_qa/processed_menat_qa.json")
+
     if model_name in ["temporal_bert", "all-minilm-l6-v2"]:
-        evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len)
+        evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len, dataset_file_path, eval_id)
         return
     
     if model_name in ["temporal_bert_full", "all-minilm-l6-v2-full"]:
-        evaluate_temporal_bert_full(model_name, model_path, batch_size, max_seq_len)
+        evaluate_temporal_bert_full(model_name, model_path, batch_size, max_seq_len, dataset_file_path, eval_id)
         return
     
     if model_name == "mistral":
@@ -44,7 +48,7 @@ def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_le
     data: List[Dict] = []
     ground_truth: List[int] = []
 
-    with DATA_FILE_PATH.open("r", encoding="utf-8") as f:
+    with dataset_file_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
         for element in tqdm(data):
@@ -64,7 +68,7 @@ def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_le
 
             output_similarities.append(similarities.index(max(similarities)))
 
-    similarities_file_path: Path = Path(f"output/similarities/{model_name}/{model_name}_similarities.json")
+    similarities_file_path: Path = Path(f"output/similarities/{model_name}/{eval_id}_{model_name}_similarities.json")
     create_folders(similarities_file_path.parent)
     
     with similarities_file_path.open("w", encoding="utf-8") as g:

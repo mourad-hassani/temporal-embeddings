@@ -8,13 +8,12 @@ from tqdm import tqdm
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.inference import Inference
 from temporal_embeddings.utils.os.folder_management import create_folders
 
-
-def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, max_seq_len: int) -> None:
-    GROUND_TRUTH_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
-    SBERT_SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert/{model_name}/temporal_bert_similarities.json")
+def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, max_seq_len: int, dataset_file_path: Path, eval_id: int) -> None:
+    GROUND_TRUTH_FILE_PATH: Path = dataset_file_path
+    SBERT_SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert/{model_name}/{eval_id}_temporal_bert_similarities.json")
     create_folders(SBERT_SIMILARITIES_FILE_PATH.parent)
 
-    similarities_list: List[int] = []
+    similarities_list: List[List[int]] = []
 
     reference_date: str = "09 august 2024"
 
@@ -39,7 +38,7 @@ def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, ma
 
             similarities = output["similarity"]
 
-            similarities_list.append(similarities.index(max(similarities)))
+            similarities_list.append(similarities)
 
     with SBERT_SIMILARITIES_FILE_PATH.open("w", encoding="utf-8") as g:
         json.dump(similarities_list, g, indent=4, ensure_ascii=False)
@@ -52,7 +51,7 @@ def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, ma
         for e in data:
             ground_truth.append(e["answer"])
 
-    print(compute_accuracy(ground_truth, similarities_list))
+    print(compute_accuracy(ground_truth, [s.index(max(s)) for s in similarities_list]))
 
 def compute_accuracy(first_list: List[int], second_list: List[int]) -> float:
     first_list, second_list = np.array(first_list), np.array(second_list)

@@ -10,13 +10,12 @@ from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.inference imp
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters import MAX_SEQ_LEN
 from temporal_embeddings.utils.os.folder_management import create_folders
 
-
-def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: int, max_seq_len: int) -> None:
-    SBERT_SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert_full/{model_name}/temporal_bert_full_similarities.json")
+def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: int, max_seq_len: int, dataset_file_path: Path, eval_id: int) -> None:
+    SBERT_SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert_full/{model_name}/{eval_id}_temporal_bert_full_similarities.json")
     create_folders(SBERT_SIMILARITIES_FILE_PATH.parent)
-    SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert_full/{model_name}/similarities.json")
+    SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert_full/{model_name}/{eval_id}_similarities.json")
     create_folders(SIMILARITIES_FILE_PATH.parent)
-    GROUND_TRUTH_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
+    GROUND_TRUTH_FILE_PATH: Path = dataset_file_path
     
     def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, max_seq_len: int) -> None:
         similarities_list: List[List[float]] = []
