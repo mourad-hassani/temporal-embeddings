@@ -51,7 +51,7 @@ def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, ma
         for e in data:
             ground_truth.append(e["answer"])
 
-    print(compute_accuracy(ground_truth, [s.index(max(s)) for s in similarities_list], top_k))
+    print(compute_accuracy(ground_truth, similarities_list, top_k))
 
 def compute_accuracy(first_list: List[int], second_list: List[List[int]], top_k: int) -> float:
     correct = 0
