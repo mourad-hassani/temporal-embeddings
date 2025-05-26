@@ -8,7 +8,7 @@ from tqdm import tqdm
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.inference import Inference
 from temporal_embeddings.utils.os.folder_management import create_folders
 
-def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, max_seq_len: int, dataset_file_path: Path, eval_id: int) -> None:
+def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, max_seq_len: int, dataset_file_path: Path, eval_id: int, top_k: int) -> None:
     GROUND_TRUTH_FILE_PATH: Path = dataset_file_path
     SBERT_SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert/{model_name}/{eval_id}_temporal_bert_similarities.json")
     create_folders(SBERT_SIMILARITIES_FILE_PATH.parent)
@@ -51,11 +51,12 @@ def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, ma
         for e in data:
             ground_truth.append(e["answer"])
 
-    print(compute_accuracy(ground_truth, [s.index(max(s)) for s in similarities_list]))
+    print(compute_accuracy(ground_truth, [s.index(max(s)) for s in similarities_list], top_k))
 
-def compute_accuracy(first_list: List[int], second_list: List[int]) -> float:
-    first_list, second_list = np.array(first_list), np.array(second_list)
-
-    assert first_list.size == second_list.size
-
-    return sum(first_list == second_list) / first_list.size
+def compute_accuracy(first_list: List[int], second_list: List[List[int]], top_k: int) -> float:
+    correct = 0
+    for gt_idx, sim_scores in zip(first_list, second_list):
+        top_k_indices = np.argsort(sim_scores)[-top_k:][::-1]
+        if gt_idx in top_k_indices:
+            correct += 1
+    return correct / len(first_list) if first_list else 0.0

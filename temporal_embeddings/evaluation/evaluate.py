@@ -13,7 +13,7 @@ from temporal_embeddings.evaluation.utils.evaluation.mistral.mistral_evaluation 
 from temporal_embeddings.evaluation.utils.evaluation.alibaba.alibaba_evaluation import evaluate_alibaba
 from temporal_embeddings.evaluation.utils.evaluation.salesforce.salesforce_evaluation import evaluate_salesforce
 
-def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_len: int, benchmark: str, eval_id: int) -> None:
+def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_len: int, benchmark: str, eval_id: int, top_k: int) -> None:
     if benchmark == "time_sensitive_qa":
         dataset_file_path: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
 
@@ -21,11 +21,11 @@ def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_le
         dataset_file_path: Path = Path("data/evaluation/menat_qa/processed_menat_qa.json")
 
     if model_name in ["temporal_bert", "all-minilm-l6-v2"]:
-        evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len, dataset_file_path, eval_id)
+        evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len, dataset_file_path, eval_id, top_k)
         return
     
     if model_name in ["temporal_bert_full", "all-minilm-l6-v2-full"]:
-        evaluate_temporal_bert_full(model_name, model_path, batch_size, max_seq_len, dataset_file_path, eval_id)
+        evaluate_temporal_bert_full(model_name, model_path, batch_size, max_seq_len, dataset_file_path, eval_id, top_k)
         return
     
     if model_name == "mistral":
