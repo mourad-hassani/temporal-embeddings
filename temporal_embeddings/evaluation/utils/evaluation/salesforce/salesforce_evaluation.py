@@ -8,12 +8,10 @@ from tqdm import tqdm
 
 from temporal_embeddings.utils.os.folder_management import create_folders
 
-DATA_FILE_PATH: Path = Path("data/evaluation/time_sensitive_qa/processed_human_annotated_test.json")
-
 def get_detailed_instruct(task_description: str, query: str) -> str:
     return f'Instruct: {task_description}\nQuery: {query}'
 
-def evaluate_salesforce() -> None:
+def evaluate_salesforce(dataset_file_path: Path) -> None:
     model_name = "Salesforce/SFR-Embedding-Mistral"
 
     task = 'Given a question with temporal constraints, retrieve relevant passages that answer the question with the correct temporal information.'
@@ -25,7 +23,9 @@ def evaluate_salesforce() -> None:
     data: List[Dict] = []
     ground_truth: List[int] = []
 
-    with DATA_FILE_PATH.open("r", encoding="utf-8") as f:
+    print(f"Evaluating model: {model_name}")
+    print(f"Dataset file path: {dataset_file_path}")
+    with dataset_file_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
         for element in tqdm(data):
@@ -35,14 +35,14 @@ def evaluate_salesforce() -> None:
 
             paragraphs: List[str] = element["paragraphs"]
 
-            batch_size = 8  # Adjust the batch size as needed
+            batch_size = 8
             embeddings = []
             for i in range(0, len(paragraphs), batch_size):
                 batch = paragraphs[i:i + batch_size]
                 if i == 0:
                     batch = [question] + batch
                 batch_embeddings = model.encode(batch)
-                embeddings.extend(batch_embeddings)  # Exclude the question embedding
+                embeddings.extend(batch_embeddings)
 
             similarities: List[float] = []
             
