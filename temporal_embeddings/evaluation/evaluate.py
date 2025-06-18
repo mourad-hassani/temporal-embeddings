@@ -37,7 +37,7 @@ def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_le
         return
     
     if model_name == "salesforce":
-        evaluate_salesforce()
+        evaluate_salesforce(dataset_file_path=dataset_file_path)
         return
 
     model: SentenceTransformer = SentenceTransformer(model_name)
