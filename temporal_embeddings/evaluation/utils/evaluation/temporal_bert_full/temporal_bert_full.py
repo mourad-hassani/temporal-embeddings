@@ -10,13 +10,13 @@ from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.inference imp
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters import MAX_SEQ_LEN
 from temporal_embeddings.utils.os.folder_management import create_folders
 
-def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: int, max_seq_len: int, dataset_file_path: Path, eval_id: int) -> None:
+def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: int, max_seq_len: int, dataset_file_path: Path, eval_id: int, top_k: int) -> None:
     SBERT_SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert_full/{model_name}/{eval_id}_temporal_bert_full_similarities.json")
     create_folders(SBERT_SIMILARITIES_FILE_PATH.parent)
     SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert_full/{model_name}/{eval_id}_similarities.json")
     create_folders(SIMILARITIES_FILE_PATH.parent)
     GROUND_TRUTH_FILE_PATH: Path = dataset_file_path
-    
+
     def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, max_seq_len: int) -> None:
         similarities_list: List[List[float]] = []
 
@@ -83,13 +83,14 @@ def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: in
         with SIMILARITIES_FILE_PATH.open("w", encoding="utf-8") as g:
             json.dump(output_similarities, g, indent=4, ensure_ascii=False)
 
-    def compute_accuracy(first_list: List[int], second_list: List[int]) -> float:
-        first_list, second_list = np.array(first_list), np.array(second_list)
+    def compute_accuracy(ground_truth: List[int], similarities_list: List[List[float]], top_k: int) -> float:
+        correct = 0
+        for gt_idx, sim_scores in zip(ground_truth, similarities_list):
+            top_k_indices = np.argsort(sim_scores)[-top_k:][::-1]
+            if gt_idx in top_k_indices:
+                correct += 1
+        return correct / len(ground_truth) if ground_truth else 0.0
 
-        assert first_list.size == second_list.size
-
-        return sum(first_list == second_list) / first_list.size
-    
     evaluate_model("BAAI/bge-large-en-v1.5")
     evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len)
 
@@ -109,14 +110,13 @@ def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: in
     
     merged_list = [[((6*x) + y) for x, y in zip(sublist1, sublist2)] for sublist1, sublist2 in zip(list1, list2)]
 
-    similarities_list: List[int] = [sublist.index(min(sublist)) for sublist in merged_list]
-
+    # For top_k, we need to select the indices of the k smallest values (since lower is better)
+    similarities_list: List[List[float]] = merged_list
     ground_truth: List[int] = []
 
     with open(GROUND_TRUTH_FILE_PATH, "r") as f:
         data: List[dict] = json.load(f)
-
         for e in data:
             ground_truth.append(e["answer"])
 
-    print(compute_accuracy(ground_truth, similarities_list))
+    print(compute_accuracy(ground_truth, similarities_list, top_k))
