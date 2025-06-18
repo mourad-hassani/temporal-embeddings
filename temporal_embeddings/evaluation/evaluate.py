@@ -43,7 +43,7 @@ def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_le
     model: SentenceTransformer = SentenceTransformer(model_name)
     model.max_seq_length = max_seq_len
 
-    output_similarities: List[int] = []
+    output_similarities: List[List[float]] = []
 
     data: List[Dict] = []
     ground_truth: List[int] = []
@@ -64,9 +64,9 @@ def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_le
             for paragraph in paragraphs:
                 paragraph_emb = model.encode(paragraph, convert_to_tensor=True) if model_name != "BAAI/bge-large-en" else model.encode(paragraph, convert_to_tensor=True, normalize_embeddings=True)
 
-                similarities.append(util.cos_sim(question_emb, paragraph_emb)[0])
+                similarities.append(float(util.cos_sim(question_emb, paragraph_emb)[0].item()))
 
-            output_similarities.append(similarities.index(max(similarities)))
+            output_similarities.append(similarities)
 
     similarities_file_path: Path = Path(f"output/similarities/{model_name}/{eval_id}_{model_name}_similarities.json")
     create_folders(similarities_file_path.parent)
@@ -74,11 +74,12 @@ def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_le
     with similarities_file_path.open("w", encoding="utf-8") as g:
         json.dump(output_similarities, g, indent=4, ensure_ascii=False)
 
-    print(compute_accuracy(ground_truth, output_similarities))
+    print(compute_accuracy(ground_truth, output_similarities, top_k))
 
-def compute_accuracy(first_list: List[int], second_list: List[int]) -> float:
-    first_list, second_list = np.array(first_list), np.array(second_list)
-
-    assert first_list.size == second_list.size
-
-    return sum(first_list == second_list) / first_list.size
+def compute_accuracy(first_list: List[int], second_list: List[List[float]], top_k: int) -> float:
+    correct = 0
+    for gt_idx, sim_scores in zip(first_list, second_list):
+        top_k_indices = np.argsort(sim_scores)[-top_k:][::-1]
+        if gt_idx in top_k_indices:
+            correct += 1
+    return correct / len(first_list) if first_list else 0.0
