@@ -8,10 +8,10 @@ def create_evaluation_dataset(dataset_name):
         input_path = main_folder / Path("MenatQA.json")
         
         if dataset_name.lower() == "menat_qa":
-            output_file = main_folder / "processed_menatqa.json"
+            output_file = main_folder / "processed_menat_qa.json"
        
         elif dataset_name.lower() == "menat_qa_granularity":
-            output_file = main_folder / "processed_menatqa_granularity.json"
+            output_file = main_folder / "processed_menat_qa_granularity.json"
         
         else:
             print(f"Dataset '{dataset_name}' is not supported.")
