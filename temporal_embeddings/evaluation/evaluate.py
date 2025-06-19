@@ -23,6 +23,15 @@ def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_le
     elif benchmark == "menat_qa_granularity":
         dataset_file_path = Path("data/evaluation/menat_qa/processed_menat_qa_granularity.json")
 
+    elif benchmark == "menat_qa_counterfactual":
+        dataset_file_path = Path("data/evaluation/menat_qa/processed_menat_qa_counterfactual.json")
+
+    elif benchmark == "menat_qa_expand":
+        dataset_file_path = Path("data/evaluation/menat_qa/processed_menat_qa_expand.json")
+
+    elif benchmark == "menat_qa_narrow":
+        dataset_file_path = Path("data/evaluation/menat_qa/processed_menat_qa_narrow.json")
+
     if model_name in ["temporal_bert", "all-minilm-l6-v2"]:
         evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len, dataset_file_path, eval_id, top_k)
         return

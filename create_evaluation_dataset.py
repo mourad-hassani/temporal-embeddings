@@ -9,9 +9,18 @@ def create_evaluation_dataset(dataset_name):
         
         if dataset_name.lower() == "menat_qa":
             output_file = main_folder / "processed_menat_qa.json"
-       
+        
         elif dataset_name.lower() == "menat_qa_granularity":
             output_file = main_folder / "processed_menat_qa_granularity.json"
+        
+        elif dataset_name.lower() == "menat_qa_counterfactual":
+            output_file = main_folder / "processed_menat_qa_counterfactual.json"
+        
+        elif dataset_name.lower() == "menat_qa_expand":
+            output_file = main_folder / "processed_menat_qa_expand.json"
+        
+        elif dataset_name.lower() == "menat_qa_narrow":
+            output_file = main_folder / "processed_menat_qa_narrow.json"
         
         else:
             print(f"Dataset '{dataset_name}' is not supported.")
@@ -28,6 +37,15 @@ def create_evaluation_dataset(dataset_name):
             if dataset_name.lower() == "menat_qa_granularity" and item.get("type") != "granularity":
                 continue
             
+            if dataset_name.lower() == "menat_qa_counterfactual" and item.get("type") != "counterfactual":
+                continue
+            
+            if dataset_name.lower() == "menat_qa_expand" and item.get("type") != "expand":
+                continue
+            
+            if dataset_name.lower() == "menat_qa_narrow" and item.get("type") != "narrow":
+                continue
+
             question = item.get("updated_question", item["question"])
             paragraphs = [ctx["text"] for ctx in item["context"]]
             answer = item.get("annotated_para", "")
@@ -48,7 +66,7 @@ def create_evaluation_dataset(dataset_name):
             print(f"Processed dataset saved to: {output_file}")
         
         else:
-            print(f"Processed granularity dataset saved to: {output_file}")
+            print(f"Processed filtered dataset saved to: {output_file}")
 
     else:
         print(f"Dataset '{dataset_name}' is not supported.")
