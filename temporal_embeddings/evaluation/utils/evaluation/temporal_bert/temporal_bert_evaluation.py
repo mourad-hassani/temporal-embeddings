@@ -2,11 +2,11 @@ from pathlib import Path
 import json
 from typing import List
 
-import numpy as np
 from tqdm import tqdm
 
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.inference import Inference
 from temporal_embeddings.utils.os.folder_management import create_folders
+from temporal_embeddings.evaluation.utils.evaluation.metrics import compute_accuracy
 
 def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, max_seq_len: int, dataset_file_path: Path, eval_id: int, top_k: int) -> None:
     GROUND_TRUTH_FILE_PATH: Path = dataset_file_path
@@ -52,11 +52,3 @@ def evaluate_temporal_bert(model_name: str, model_path: str, batch_size: int, ma
             ground_truth.append(e["answer"])
 
     print(compute_accuracy(ground_truth, similarities_list, top_k))
-
-def compute_accuracy(first_list: List[int], second_list: List[List[int]], top_k: int) -> float:
-    correct = 0
-    for gt_idx, sim_scores in zip(first_list, second_list):
-        top_k_indices = np.argsort(sim_scores)[-top_k:][::-1]
-        if gt_idx in top_k_indices:
-            correct += 1
-    return correct / len(first_list) if first_list else 0.0

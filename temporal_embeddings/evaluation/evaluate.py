@@ -4,7 +4,6 @@ from typing import List, Dict
 
 from sentence_transformers import SentenceTransformer, util
 from tqdm import tqdm
-import numpy as np
 
 from temporal_embeddings.utils.os.folder_management import create_folders
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.temporal_bert_evaluation import evaluate_temporal_bert
@@ -12,6 +11,7 @@ from temporal_embeddings.evaluation.utils.evaluation.temporal_bert_full.temporal
 from temporal_embeddings.evaluation.utils.evaluation.mistral.mistral_evaluation import evaluate_mistral
 from temporal_embeddings.evaluation.utils.evaluation.alibaba.alibaba_evaluation import evaluate_alibaba
 from temporal_embeddings.evaluation.utils.evaluation.salesforce.salesforce_evaluation import evaluate_salesforce
+from temporal_embeddings.evaluation.utils.evaluation.metrics import compute_accuracy
 
 def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_len: int, benchmark: str, eval_id: int, top_k: int) -> None:
     if benchmark == "time_sensitive_qa":
@@ -31,6 +31,9 @@ def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_le
 
     elif benchmark == "menat_qa_narrow":
         dataset_file_path = Path("data/evaluation/menat_qa/processed_menat_qa_narrow.json")
+
+    elif benchmark == "ts_retriever":
+        dataset_file_path = Path("data/evaluation/ts_retriever/processed_ts_retriever.json")
 
     if model_name in ["temporal_bert", "all-minilm-l6-v2"]:
         evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len, dataset_file_path, eval_id, top_k)
@@ -87,11 +90,3 @@ def evaluate_model(model_name: str, model_path: str, batch_size: int, max_seq_le
         json.dump(output_similarities, g, indent=4, ensure_ascii=False)
 
     print(compute_accuracy(ground_truth, output_similarities, top_k))
-
-def compute_accuracy(first_list: List[int], second_list: List[List[float]], top_k: int) -> float:
-    correct = 0
-    for gt_idx, sim_scores in zip(first_list, second_list):
-        top_k_indices = np.argsort(sim_scores)[-top_k:][::-1]
-        if gt_idx in top_k_indices:
-            correct += 1
-    return correct / len(first_list) if first_list else 0.0

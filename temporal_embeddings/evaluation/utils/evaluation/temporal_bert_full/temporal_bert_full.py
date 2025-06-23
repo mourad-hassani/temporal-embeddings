@@ -2,13 +2,13 @@ from pathlib import Path
 import json
 from typing import List, Dict
 
-import numpy as np
 from tqdm import tqdm
 from sentence_transformers import SentenceTransformer, util
 
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.inference import Inference
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters import MAX_SEQ_LEN
 from temporal_embeddings.utils.os.folder_management import create_folders
+from temporal_embeddings.evaluation.utils.evaluation.metrics import compute_accuracy
 
 def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: int, max_seq_len: int, dataset_file_path: Path, eval_id: int, top_k: int) -> None:
     SBERT_SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert_full/{model_name}/{eval_id}_temporal_bert_full_similarities.json")
@@ -82,14 +82,6 @@ def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: in
         
         with SIMILARITIES_FILE_PATH.open("w", encoding="utf-8") as g:
             json.dump(output_similarities, g, indent=4, ensure_ascii=False)
-
-    def compute_accuracy(ground_truth: List[int], similarities_list: List[List[float]], top_k: int) -> float:
-        correct = 0
-        for gt_idx, sim_scores in zip(ground_truth, similarities_list):
-            top_k_indices = np.argsort(sim_scores)[-top_k:][::-1]
-            if gt_idx in top_k_indices:
-                correct += 1
-        return correct / len(ground_truth) if ground_truth else 0.0
 
     evaluate_model("BAAI/bge-large-en-v1.5")
     evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len)
