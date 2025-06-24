@@ -3,29 +3,33 @@ from pathlib import Path
 import json
 
 from sentence_transformers import SentenceTransformer, util
-import numpy as np
 from tqdm import tqdm
 
 from temporal_embeddings.utils.os.folder_management import create_folders
+from temporal_embeddings.evaluation.utils.evaluation.metrics import compute_accuracy
 
 def get_detailed_instruct(task_description: str, query: str) -> str:
     return f'Instruct: {task_description}\nQuery: {query}'
 
-def evaluate_salesforce(dataset_file_path: Path) -> None:
+def evaluate_salesforce(dataset_file_path: Path, eval_id: int, top_k: int) -> None:
+    GROUND_TRUTH_FILE_PATH: Path = dataset_file_path
     model_name = "Salesforce/SFR-Embedding-Mistral"
+    SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/salesforce/{model_name}/{eval_id}_similarities.json")
+    create_folders(SIMILARITIES_FILE_PATH.parent)
 
     task = 'Given a question with temporal constraints, retrieve relevant passages that answer the question with the correct temporal information.'
 
     model = SentenceTransformer(model_name, trust_remote_code=True)
 
     output_similarities: List[int] = []
+    similarities_list: List[List[float]] = []
 
     data: List[Dict] = []
     ground_truth: List[int] = []
 
     print(f"Evaluating model: {model_name}")
-    print(f"Dataset file path: {dataset_file_path}")
-    with dataset_file_path.open("r", encoding="utf-8") as f:
+    print(f"Dataset file path: {GROUND_TRUTH_FILE_PATH}")
+    with GROUND_TRUTH_FILE_PATH.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
         for element in tqdm(data):
@@ -48,22 +52,12 @@ def evaluate_salesforce(dataset_file_path: Path) -> None:
             
             for i, _ in enumerate(paragraphs):
                 scores = util.cos_sim(embeddings[0], embeddings[i+1])
-
                 similarities.append(scores.tolist()[0][0])
 
+            similarities_list.append(similarities)
             output_similarities.append(similarities.index(max(similarities)))
-
-    similarities_file_path: Path = Path(f"output/similarities/{model_name}/{model_name}_similarities.json")
-    create_folders(similarities_file_path.parent)
     
-    with similarities_file_path.open("w", encoding="utf-8") as g:
-        json.dump(output_similarities, g, indent=4, ensure_ascii=False)
+    with SIMILARITIES_FILE_PATH.open("w", encoding="utf-8") as g:
+        json.dump(similarities_list, g, indent=4, ensure_ascii=False)
 
-    print(compute_accuracy(ground_truth, output_similarities))
-
-def compute_accuracy(first_list: List[int], second_list: List[int]) -> float:
-    first_list, second_list = np.array(first_list), np.array(second_list)
-
-    assert first_list.size == second_list.size
-
-    return sum(first_list == second_list) / first_list.size
+    print(compute_accuracy(ground_truth, similarities_list, top_k))
