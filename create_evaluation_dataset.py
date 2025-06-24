@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import argparse
+import random
 
 def create_evaluation_dataset(dataset_name):
     if dataset_name.lower().startswith("menat_qa"):
@@ -67,6 +68,50 @@ def create_evaluation_dataset(dataset_name):
         
         else:
             print(f"Processed filtered dataset saved to: {output_file}")
+
+    elif dataset_name.lower().startswith("ts_retriever"):
+        base = Path("data/evaluation/ts_retriever")
+        query_path = base / "query.json"
+        doc_path = base / "doc.json"
+        output_path = base / "processed_ts_retriever.json"
+
+        with query_path.open("r", encoding="utf-8") as f:
+            questions = json.load(f)
+
+        with doc_path.open("r", encoding="utf-8") as f:
+            paragraphs = json.load(f)
+
+        output = []
+
+        for _, q in enumerate(questions):
+            answer_idx = []
+            
+            for positive_text in q["positive_text"]:
+                answer_idx.append(paragraphs.index(positive_text))
+
+            selected_paragraphs = [paragraphs[i] for i in answer_idx]
+
+            other_indexes = [i for i in range(len(paragraphs)) if i not in answer_idx]
+
+            sampled_indexes = random.sample(other_indexes, min(5, len(other_indexes)))
+            selected_paragraphs += [paragraphs[i] for i in sampled_indexes]
+
+            random.shuffle(selected_paragraphs)
+
+            paragraphs = selected_paragraphs
+
+            entry = {
+                "question": q["question"],
+                "paragraphs": paragraphs,
+                "answer": answer_idx,
+            }
+
+            output.append(entry)
+
+        with output_path.open("w", encoding="utf-8") as f:
+            json.dump(output, f, ensure_ascii=False, indent=2)
+
+        print(f"Processed dataset saved to: {output_path}")
 
     else:
         print(f"Dataset '{dataset_name}' is not supported.")
