@@ -101,7 +101,7 @@ def create_evaluation_dataset(dataset_name):
             paragraphs = selected_paragraphs
 
             entry = {
-                "question": q["question"],
+                "question": q["query"],
                 "paragraphs": paragraphs,
                 "answer": answer_idx,
             }
