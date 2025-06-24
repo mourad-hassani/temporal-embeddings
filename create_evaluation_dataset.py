@@ -98,7 +98,9 @@ def create_evaluation_dataset(dataset_name):
 
             random.shuffle(selected_paragraphs)
 
-            selected_paragraphs
+            answer_idx = []
+            for positive_text in q["positive_text"]:
+                answer_idx.append(selected_paragraphs.index(positive_text))
 
             entry = {
                 "question": q["query"],
