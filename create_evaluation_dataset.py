@@ -98,11 +98,11 @@ def create_evaluation_dataset(dataset_name):
 
             random.shuffle(selected_paragraphs)
 
-            paragraphs = selected_paragraphs
+            selected_paragraphs
 
             entry = {
                 "question": q["query"],
-                "paragraphs": paragraphs,
+                "paragraphs": selected_paragraphs,
                 "answer": answer_idx,
             }
 
