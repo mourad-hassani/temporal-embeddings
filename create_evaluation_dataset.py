@@ -55,7 +55,7 @@ def create_evaluation_dataset(dataset_name):
             entry = {
                 "question": question,
                 "paragraphs": paragraphs,
-                "answer": answer_index if answer_index >= 0 else 0
+                "answer": [answer_index] if answer_index >= 0 else [0]
             }
             
             processed_data.append(entry)
@@ -114,6 +114,37 @@ def create_evaluation_dataset(dataset_name):
             json.dump(output, f, ensure_ascii=False, indent=2)
 
         print(f"Processed dataset saved to: {output_path}")
+
+    elif dataset_name.lower().startswith("human_annotated_test"):
+        main_folder = Path("data/evaluation/time_sensitive_qa")
+        input_path = main_folder / "human_annotated_test.json"
+        output_file = main_folder / "processed_human_annotated_test.json"
+
+        main_folder.mkdir(parents=True, exist_ok=True)
+
+        with input_path.open("r", encoding="utf-8") as infile:
+            data = json.load(infile)
+
+        processed_data = []
+        for item in data:
+            paragraphs = item.get("paras", [])
+            for q_pair in item.get("questions", []):
+                question_text = q_pair[0]
+                answers = q_pair[1]
+                # If there are multiple answers, process each one
+                for ans in answers:
+                    para_idx = ans.get("para", 0)
+                    entry = {
+                        "question": question_text,
+                        "paragraphs": paragraphs,
+                        "answer": [para_idx]
+                    }
+                    processed_data.append(entry)
+
+        with output_file.open("w", encoding="utf-8") as outfile:
+            json.dump(processed_data, outfile, indent=2, ensure_ascii=False)
+
+        print(f"Processed dataset saved to: {output_file}")
 
     else:
         print(f"Dataset '{dataset_name}' is not supported.")
