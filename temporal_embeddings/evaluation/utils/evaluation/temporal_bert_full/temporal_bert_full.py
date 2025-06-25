@@ -100,7 +100,7 @@ def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: in
     # list1 = [rank_list(sublist) for sublist in list1]
     # list2 = [rank_list(sublist) for sublist in list2]
     
-    merged_list = [[((6*x) + y) for x, y in zip(sublist1, sublist2)] for sublist1, sublist2 in zip(list1, list2)]
+    merged_list = [[(x + y) for x, y in zip(sublist1, sublist2)] for sublist1, sublist2 in zip(list1, list2)]
 
     similarities_list: List[List[float]] = merged_list
     ground_truth: List[int] = []
