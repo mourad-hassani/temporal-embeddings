@@ -47,7 +47,7 @@ def create_evaluation_dataset(dataset_name):
             if dataset_name.lower() == "menat_qa_narrow" and item.get("type") != "narrow":
                 continue
 
-            question = item.get("updated_question", item["question"])
+            question = item.get("question", "")
             paragraphs = [ctx["text"] for ctx in item["context"]]
             answer = item.get("annotated_para", "")
             answer_index = next((i for i, p in enumerate(paragraphs) if answer in p), -1)

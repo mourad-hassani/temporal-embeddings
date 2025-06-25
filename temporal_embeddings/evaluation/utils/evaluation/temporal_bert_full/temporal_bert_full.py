@@ -90,19 +90,18 @@ def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: in
         list1 = json.load(f1)
         list2 = json.load(f2)
 
-    def rank_list(values: List[float]) -> List[int]:
-        sorted_indices = sorted(range(len(values)), key=lambda x: values[x], reverse=True)
-        ranks = [0] * len(values)
-        for rank, index in enumerate(sorted_indices):
-            ranks[index] = rank
-        return ranks
+    # def rank_list(values: List[float]) -> List[int]:
+    #     sorted_indices = sorted(range(len(values)), key=lambda x: values[x], reverse=True)
+    #     ranks = [0] * len(values)
+    #     for rank, index in enumerate(sorted_indices):
+    #         ranks[index] = rank
+    #     return ranks
 
-    list1 = [rank_list(sublist) for sublist in list1]
-    list2 = [rank_list(sublist) for sublist in list2]
+    # list1 = [rank_list(sublist) for sublist in list1]
+    # list2 = [rank_list(sublist) for sublist in list2]
     
     merged_list = [[((6*x) + y) for x, y in zip(sublist1, sublist2)] for sublist1, sublist2 in zip(list1, list2)]
 
-    # For top_k, we need to select the indices of the k smallest values (since lower is better)
     similarities_list: List[List[float]] = merged_list
     ground_truth: List[int] = []
 
