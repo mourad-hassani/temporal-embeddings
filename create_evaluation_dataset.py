@@ -48,7 +48,11 @@ def create_evaluation_dataset(dataset_name):
                 continue
 
             question = item.get("question", "")
+            
             paragraphs = [ctx["text"] for ctx in item["context"]]
+            if len(paragraphs) <= 2:
+                continue
+            
             answer = item.get("annotated_para", "")
             answer_index = next((i for i, p in enumerate(paragraphs) if answer in p), -1)
 
