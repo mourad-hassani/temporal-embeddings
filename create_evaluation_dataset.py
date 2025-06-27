@@ -50,7 +50,7 @@ def create_evaluation_dataset(dataset_name):
             question = item.get("question", "")
             
             paragraphs = [ctx["text"] for ctx in item["context"]]
-            if len(paragraphs) <= 2:
+            if len(paragraphs) <= 3:
                 continue
             
             answer = item.get("annotated_para", "")
