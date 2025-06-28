@@ -10,7 +10,7 @@ from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters im
 from temporal_embeddings.utils.os.folder_management import create_folders
 from temporal_embeddings.evaluation.utils.evaluation.metrics import compute_accuracy
 
-def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: int, max_seq_len: int, dataset_file_path: Path, eval_id: int, top_k: int) -> None:
+def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: int, max_seq_len: int, dataset_file_path: Path, eval_id: int, top_k: int, skip: bool = False) -> None:
     SBERT_SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert_full/{model_name}/{eval_id}_temporal_bert_full_similarities.json")
     create_folders(SBERT_SIMILARITIES_FILE_PATH.parent)
     SIMILARITIES_FILE_PATH: Path = Path(f"output/similarities/temporal_bert_full/{model_name}/{eval_id}_similarities.json")
@@ -83,8 +83,9 @@ def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: in
         with SIMILARITIES_FILE_PATH.open("w", encoding="utf-8") as g:
             json.dump(output_similarities, g, indent=4, ensure_ascii=False)
 
-    evaluate_model("BAAI/bge-large-en-v1.5")
-    evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len)
+    if not skip:
+        evaluate_model("BAAI/bge-large-en-v1.5")
+        evaluate_temporal_bert(model_name, model_path, batch_size, max_seq_len)
 
     with SBERT_SIMILARITIES_FILE_PATH.open("r", encoding="utf-8") as f1, SIMILARITIES_FILE_PATH.open("r", encoding="utf-8") as f2:
         list1 = json.load(f1)

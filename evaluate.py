@@ -10,9 +10,10 @@ def main():
     parser.add_argument("--benchmark", type=str, required=True, help="Benchmark to use for evaluation")
     parser.add_argument("--eval_id", type=int, required=True, help="Evaluation ID to identify the experiment")
     parser.add_argument("--top_k", type=int, default=1, help="Value of k for top-k accuracy")
+    parser.add_argument("--skip", action="store_true", help="Skip model evaluation")
     args = parser.parse_args()
 
-    evaluate_model(args.model_name, args.model_path, args.batch_size, args.max_seq_len, args.benchmark, args.eval_id, args.top_k)
+    evaluate_model(args.model_name, args.model_path, args.batch_size, args.max_seq_len, args.benchmark, args.eval_id, args.top_k, args.skip)
 
 if __name__ == "__main__":
     main()
