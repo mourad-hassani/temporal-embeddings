@@ -4,6 +4,7 @@ from typing import List, Dict
 
 from tqdm import tqdm
 from sentence_transformers import SentenceTransformer, util
+import numpy as np
 
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.inference import Inference
 from temporal_embeddings.evaluation.utils.evaluation.temporal_bert.parameters import MAX_SEQ_LEN
@@ -100,6 +101,20 @@ def evaluate_temporal_bert_full(model_name: str, model_path: str, batch_size: in
 
     # list1 = [rank_list(sublist) for sublist in list1]
     # list2 = [rank_list(sublist) for sublist in list2]
+
+    def normalize_list(lst: List[List[float]]) -> List[List[float]]:
+        normalized = []
+        for sublist in lst:
+            arr = np.array(sublist)
+            if arr.max() - arr.min() == 0:
+                normalized.append([0.0 for _ in arr])
+            else:
+                norm = (arr - arr.min()) / (arr.max() - arr.min())
+                normalized.append(norm.tolist())
+        return normalized
+
+    list1 = normalize_list(list1)
+    list2 = normalize_list(list2)
     
     merged_list = [[(x + y) for x, y in zip(sublist1, sublist2)] for sublist1, sublist2 in zip(list1, list2)]
 
