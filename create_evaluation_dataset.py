@@ -97,7 +97,7 @@ def create_evaluation_dataset(dataset_name):
 
             other_indexes = [i for i in range(len(paragraphs)) if i not in answer_idx]
 
-            sampled_indexes = random.sample(other_indexes, min(5, len(other_indexes)))
+            sampled_indexes = random.sample(other_indexes, min(10, len(other_indexes)))
             selected_paragraphs += [paragraphs[i] for i in sampled_indexes]
 
             random.shuffle(selected_paragraphs)
