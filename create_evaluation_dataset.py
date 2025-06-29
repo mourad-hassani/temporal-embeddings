@@ -33,6 +33,8 @@ def create_evaluation_dataset(dataset_name):
             menat_data = json.load(infile)
 
         processed_data = []
+
+        all_paragraphs = set([ctx["text"] for item in menat_data for ctx in item["context"]])
         
         for item in menat_data:
             if dataset_name.lower() == "menat_qa_granularity" and item.get("type") != "granularity":
@@ -52,6 +54,11 @@ def create_evaluation_dataset(dataset_name):
             paragraphs = [ctx["text"] for ctx in item["context"]]
             if len(paragraphs) <= 3:
                 continue
+
+            additional_paragraphs = list(all_paragraphs - set(paragraphs))
+            sampled_paragraphs = random.sample(additional_paragraphs, min(10, len(additional_paragraphs)))
+            paragraphs += sampled_paragraphs
+            random.shuffle(paragraphs)
             
             answer = item.get("annotated_para", "")
             answer_index = next((i for i, p in enumerate(paragraphs) if answer in p), -1)
